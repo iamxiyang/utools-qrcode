@@ -1,0 +1,5 @@
+**/node_modules/
+**/dist/
+/.idea/
+/TODO.md
+.DS_Store
