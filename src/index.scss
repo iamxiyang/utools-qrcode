@@ -6,3 +6,33 @@ body {
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
 }
+
+button {
+  border: none;
+  transition: all .2s linear;
+  color: #555;
+  background: none;
+}
+
+button:hover {
+  background: #3a7afe1a;
+  color: #3a7afe;
+}
+
+textarea {
+  resize: none;
+  border: none;
+  outline: none;
+  transition: all .2s linear;
+  border-radius: 4px;
+}
+
+textarea:focus {
+  background-color: #f3f2f1;
+  border-bottom: 4px solid #3a7afe;
+}
+
+.active {
+  background: #3a7afe1a;
+  color: #3a7afe;
+}
