@@ -1,5 +1,17 @@
 import React, { useCallback, useEffect, useRef, useState } from 'react'
-import { Input, QRCode, FloatButton, Drawer, Button, Switch, message, ColorPicker, Tooltip, InputNumber } from 'antd'
+import {
+  Input,
+  QRCode,
+  FloatButton,
+  Drawer,
+  Button,
+  Switch,
+  message,
+  ColorPicker,
+  Tooltip,
+  InputNumber,
+  Modal,
+} from 'antd'
 import {
   MenuOutlined,
   SettingOutlined,
@@ -63,7 +75,8 @@ function App() {
   const [setting, updateSetting] = useSetting(initialSetting)
   const [history, updateHistory] = useLocalStorage<string[]>('DecodeHistory', [])
 
-  const [messageApi, contextHolder] = message.useMessage()
+  const [messageApi, messageContextHolder] = message.useMessage()
+  const [modal, modealContextHolder] = Modal.useModal()
 
   useEffect(() => {
     utools.onPluginEnter(({ code, type, payload }) => {
@@ -149,9 +162,42 @@ function App() {
     window.utools.screenCapture(parseImg)
   }
 
+  const onShowContact = () => {
+    const GIT_URL = 'https://github.com/iamxiyang/utools-qrcode'
+    modal.info({
+      title: '联系/打赏作者',
+      width: 580,
+      centered: true,
+      icon: null,
+      okText: '关闭',
+      content: (
+        <>
+          <div className="w-530px flex items-center justify-between mt-20px">
+            <div>
+              <img src="./wechat.jpg" className="w-250px" alt="联系作者" />
+              <p className="text-center mt-4px">微信扫码联系作者</p>
+            </div>
+            <div>
+              <img src="./appreciate.jpg" className="w-250px" alt="赞赏作者" />
+              <p className="text-center mt-4px">微信扫码支持开发</p>
+            </div>
+          </div>
+          <div>
+            该插件开源，开源地址
+            <Button type="link" onClick={() => openUrl(GIT_URL)}>
+              {GIT_URL}
+            </Button>
+          </div>
+          <p className="mt-4px">如有问题、建议，可以直接微信联系，或者通过github提issue、插件评论区留言</p>
+        </>
+      ),
+    })
+  }
+
   return (
     <div className="w-full h-full flex p-20px">
-      {contextHolder}
+      {messageContextHolder}
+      {modealContextHolder}
       <div className="flex-1 flex flex-col">
         <div className="h-160px">
           <TextArea
@@ -195,7 +241,7 @@ function App() {
       <FloatButton.Group trigger="hover" style={{ right: 30 }} icon={<MenuOutlined />}>
         <FloatButton icon={<ScanOutlined />} tooltip="扫码" onClick={onScan} />
         <FloatButton icon={<SettingOutlined />} tooltip="设置" onClick={() => setOpen(true)} />
-        <FloatButton icon={<WechatOutlined />} tooltip="联系作者/打赏" />
+        <FloatButton icon={<WechatOutlined />} tooltip="联系作者/打赏" onClick={onShowContact} />
       </FloatButton.Group>
 
       <Drawer title="设置" placement="right" onClose={() => setOpen(false)} open={open}>
