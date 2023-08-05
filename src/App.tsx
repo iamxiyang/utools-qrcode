@@ -42,7 +42,7 @@ const initialSetting: Setting = {
 }
 
 const HistoryItem = ({ text }: { text: string }) => {
-  const isUrl = text.startsWith('http')
+  const isUrl = /^(https?|ftp):\/\/.*/.test(text)
 
   const onCopy = () => {
     copyText(text)
