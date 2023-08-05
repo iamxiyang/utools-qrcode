@@ -12,6 +12,8 @@ import {
   InputNumber,
   Modal,
   Popconfirm,
+  ConfigProvider,
+  theme,
 } from 'antd'
 import {
   MenuOutlined,
@@ -54,11 +56,11 @@ const HistoryItem = ({ text }: { text: string }) => {
   }
 
   return (
-    <div className="min-h-40px bg-#fcfcfc p-4px flex items-center text-14px m-b-8px border-#ddd cursor-text">
+    <div className="min-h-40px bg-#fcfcfc dark:bg-#303133 p-4px flex items-center text-14px m-b-8px border-#ddd cursor-text">
       <div className="flex-1">
         <Button
           type={isUrl ? 'link' : 'text'}
-          className="p-4px !bg-#fcfcfc text-left history-text"
+          className="p-4px !bg-#fcfcfc !dark:bg-#303133 text-left history-text"
           onClick={onTextClick}
         >
           {text}
@@ -206,146 +208,158 @@ function App() {
   }
 
   return (
-    <div className="w-full h-full flex p-20px">
-      {messageContextHolder}
-      {modealContextHolder}
-      <div className="flex-1 flex flex-col">
-        <div className="h-160px">
-          <TextArea
-            autoFocus
-            value={text}
-            maxLength={1000}
-            className="!h-full"
-            style={{ resize: 'none' }}
-            onChange={onTextAreaChange}
-            placeholder="二维码内容"
-          />
-        </div>
-        <div className="flex-1 flex items-center justify-center  mt-30px">
-          <Tooltip title="点击复制二维码" placement="top">
-            <div className="qrcode-container" onClick={onCopyQrcode}>
-              <QRCode
-                size={3000}
-                bordered={false}
-                color={setting.qrCodeColor}
-                bgColor={setting.qrCodeBgColor}
-                value={text || 'wxp://f2f1T_ktr-V8a3MBhU6ICGoMp01a6LqJeBOmVGEFy8JE_8JauFt8Nh-3NP32iK3WEtYf'}
-              />
-            </div>
-          </Tooltip>
-        </div>
-      </div>
-      {setting.isSaveHistory && (
-        <section className="w-30% h-full bg-#f2f2f2 overflow-y-auto overflow-x-hidden px-10px ml-10px rd-6px">
-          <header className="flex items-center justify-between h-52px py-10px">
-            <strong>解码历史</strong>
-            {history.length > 0 && (
-              <Popconfirm
-                title="确定清空解析历史记录？"
-                onConfirm={() => updateHistory([])}
-                okText="删除"
-                cancelText="取消"
-              >
-                <Button type="link" icon={<ClearOutlined />}></Button>
-              </Popconfirm>
-            )}
-          </header>
-          <div>
-            {history.map(item => (
-              <HistoryItem key={item} text={item} />
-            ))}
+    <ConfigProvider
+      theme={{
+        algorithm: utools.isDarkColors() ? theme.darkAlgorithm : theme.defaultAlgorithm,
+      }}
+    >
+      <div className={`w-full h-full flex p-20px ${utools.isDarkColors() ? 'dark' : 'light'}`}>
+        {messageContextHolder}
+        {modealContextHolder}
+        <div className="flex-1 flex flex-col">
+          <div className="h-160px">
+            <TextArea
+              autoFocus
+              value={text}
+              maxLength={1000}
+              className="!h-full"
+              style={{ resize: 'none' }}
+              onChange={onTextAreaChange}
+              placeholder="二维码内容"
+            />
           </div>
-        </section>
-      )}
-
-      <FloatButton.Group trigger="hover" style={{ right: 30 }} icon={<MenuOutlined />}>
-        <FloatButton icon={<ScanOutlined />} tooltip="扫码" onClick={onScan} />
-        <FloatButton icon={<SettingOutlined />} tooltip="设置" onClick={() => setOpen(true)} />
-        <FloatButton icon={<WechatOutlined />} tooltip="联系作者/打赏" onClick={onShowContact} />
-      </FloatButton.Group>
-
-      <Drawer title="设置" placement="right" onClose={() => setOpen(false)} open={open}>
-        <Tooltip title="开启后二维码解析文本将保存到历史记录" placement="left">
-          <h4 className="mt-0 mb-10px">是否保存解析历史</h4>
-          <Switch
-            checkedChildren="开启"
-            unCheckedChildren="关闭"
-            onChange={() => {
-              if (setting.isSaveHistory) {
-                updateHistory([])
-              }
-              updateSetting({ isSaveHistory: !setting.isSaveHistory })
-            }}
-            defaultChecked={setting.isSaveHistory}
-          />
-        </Tooltip>
-
-        {setting.isSaveHistory && (
-          <>
-            <Tooltip title="开启后如果历史记录已经存在相同的内容将先删除旧的内容再保存" placement="left">
-              <h4 className="mb-10px">保存时是否去重复</h4>
-              <Switch
-                checkedChildren="开启"
-                unCheckedChildren="关闭"
-                onChange={() => updateSetting({ isRemoveDuplicates: !setting.isRemoveDuplicates })}
-                defaultChecked={setting.isRemoveDuplicates}
-              />
-            </Tooltip>{' '}
-            <Tooltip title="超出设置条数自动覆盖旧内容" placement="left">
-              <h4 className="mb-10px">保留条数</h4>
-              <InputNumber
-                className="w-full"
-                value={setting.saveHistoryMaxCount}
-                onChange={value => updateSetting({ saveHistoryMaxCount: value || 1 })}
-                min={1}
-                max={100}
-              />
+          <div className="flex-1 flex items-center justify-center  mt-30px">
+            <Tooltip title="点击复制二维码" placement="top">
+              <div className="qrcode-container" onClick={onCopyQrcode}>
+                <QRCode
+                  size={3000}
+                  bordered={false}
+                  color={setting.qrCodeColor}
+                  bgColor={setting.qrCodeBgColor}
+                  value={text || 'wxp://f2f1T_ktr-V8a3MBhU6ICGoMp01a6LqJeBOmVGEFy8JE_8JauFt8Nh-3NP32iK3WEtYf'}
+                />
+              </div>
             </Tooltip>
-          </>
+          </div>
+        </div>
+        {setting.isSaveHistory && (
+          <section className="w-30% h-full bg-#f2f2f2 dark:bg-#141414 overflow-y-auto overflow-x-hidden px-10px ml-10px rd-6px">
+            <header className="flex items-center justify-between h-52px py-10px">
+              <strong className="dark:text-#f2f2f2">解码历史</strong>
+              {history.length > 0 && (
+                <Popconfirm
+                  title="确定清空解析历史记录？"
+                  onConfirm={() => updateHistory([])}
+                  okText="删除"
+                  cancelText="取消"
+                >
+                  <Button type="link" icon={<ClearOutlined />}></Button>
+                </Popconfirm>
+              )}
+            </header>
+            <div>
+              {history.map(item => (
+                <HistoryItem key={item} text={item} />
+              ))}
+            </div>
+          </section>
         )}
 
-        <Tooltip title="开启后二维码图片解析出来的内容将自动复制到剪贴板" placement="left">
-          <h4 className="mb-10px">解码文本自动复制</h4>
-          <Switch
-            checkedChildren="开启"
-            unCheckedChildren="关闭"
-            onChange={() => updateSetting({ isAutoCopyCode: !setting.isAutoCopyCode })}
-            defaultChecked={setting.isAutoCopyCode}
-          />
-        </Tooltip>
-        <Tooltip title="开启后生成的二维码图片将自动复制到剪贴板" placement="left">
-          <h4 className="mb-10px">二维码图片自动复制</h4>
-          <Switch
-            checkedChildren="开启"
-            unCheckedChildren="关闭"
-            onChange={() => updateSetting({ isAutoCopyQrcode: !setting.isAutoCopyQrcode })}
-            defaultChecked={setting.isAutoCopyQrcode}
-          />
-        </Tooltip>
-        <div>
-          <h4 className="mb-10px">二维码颜色</h4>
-          <ColorPicker
-            size="small"
-            showText
-            defaultValue={setting.qrCodeColor}
-            onChange={event => {
-              updateSetting({ qrCodeColor: event.toHexString() })
-            }}
-          />
-        </div>
-        <div>
-          <h4 className="mb-10px">二维码背景颜色</h4>
-          <ColorPicker
-            size="small"
-            showText
-            defaultValue={setting.qrCodeBgColor}
-            onChange={event => {
-              updateSetting({ qrCodeBgColor: event.toHexString() })
-            }}
-          />
-        </div>
-      </Drawer>
-    </div>
+        <FloatButton.Group trigger="hover" style={{ right: 30 }} icon={<MenuOutlined />}>
+          <FloatButton icon={<ScanOutlined />} tooltip="扫码" onClick={onScan} />
+          <FloatButton icon={<SettingOutlined />} tooltip="设置" onClick={() => setOpen(true)} />
+          <FloatButton icon={<WechatOutlined />} tooltip="联系作者/打赏" onClick={onShowContact} />
+        </FloatButton.Group>
+
+        <Drawer
+          title="设置"
+          placement="right"
+          onClose={() => setOpen(false)}
+          open={open}
+          className={` ${utools.isDarkColors() ? 'dark' : 'light'}`}
+        >
+          <Tooltip title="开启后二维码解析文本将保存到历史记录" placement="left">
+            <h4 className="mt-0 mb-10px dark:text-#d3d3d3">是否保存解析历史</h4>
+            <Switch
+              checkedChildren="开启"
+              unCheckedChildren="关闭"
+              onChange={() => {
+                if (setting.isSaveHistory) {
+                  updateHistory([])
+                }
+                updateSetting({ isSaveHistory: !setting.isSaveHistory })
+              }}
+              defaultChecked={setting.isSaveHistory}
+            />
+          </Tooltip>
+
+          {setting.isSaveHistory && (
+            <>
+              <Tooltip title="开启后如果历史记录已经存在相同的内容将先删除旧的内容再保存" placement="left">
+                <h4 className="mb-10px dark:text-#d3d3d3">保存时是否去重复</h4>
+                <Switch
+                  checkedChildren="开启"
+                  unCheckedChildren="关闭"
+                  onChange={() => updateSetting({ isRemoveDuplicates: !setting.isRemoveDuplicates })}
+                  defaultChecked={setting.isRemoveDuplicates}
+                />
+              </Tooltip>{' '}
+              <Tooltip title="超出设置条数自动覆盖旧内容" placement="left">
+                <h4 className="mb-10px dark:text-#d3d3d3">保留条数</h4>
+                <InputNumber
+                  className="w-full"
+                  value={setting.saveHistoryMaxCount}
+                  onChange={value => updateSetting({ saveHistoryMaxCount: value || 1 })}
+                  min={1}
+                  max={100}
+                />
+              </Tooltip>
+            </>
+          )}
+
+          <Tooltip title="开启后二维码图片解析出来的内容将自动复制到剪贴板" placement="left">
+            <h4 className="mb-10px dark:text-#d3d3d3">解码文本自动复制</h4>
+            <Switch
+              checkedChildren="开启"
+              unCheckedChildren="关闭"
+              onChange={() => updateSetting({ isAutoCopyCode: !setting.isAutoCopyCode })}
+              defaultChecked={setting.isAutoCopyCode}
+            />
+          </Tooltip>
+          <Tooltip title="开启后生成的二维码图片将自动复制到剪贴板" placement="left">
+            <h4 className="mb-10px dark:text-#d3d3d3">二维码图片自动复制</h4>
+            <Switch
+              checkedChildren="开启"
+              unCheckedChildren="关闭"
+              onChange={() => updateSetting({ isAutoCopyQrcode: !setting.isAutoCopyQrcode })}
+              defaultChecked={setting.isAutoCopyQrcode}
+            />
+          </Tooltip>
+          <div>
+            <h4 className="mb-10px dark:text-#d3d3d3">二维码颜色</h4>
+            <ColorPicker
+              size="small"
+              showText
+              defaultValue={setting.qrCodeColor}
+              onChange={event => {
+                updateSetting({ qrCodeColor: event.toHexString() })
+              }}
+            />
+          </div>
+          <div>
+            <h4 className="mb-10px dark:text-#d3d3d3">二维码背景颜色</h4>
+            <ColorPicker
+              size="small"
+              showText
+              defaultValue={setting.qrCodeBgColor}
+              onChange={event => {
+                updateSetting({ qrCodeBgColor: event.toHexString() })
+              }}
+            />
+          </div>
+        </Drawer>
+      </div>
+    </ConfigProvider>
   )
 }
 
