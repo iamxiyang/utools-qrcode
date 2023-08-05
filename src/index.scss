@@ -1,3 +1,15 @@
+* {
+  box-sizing: border-box;
+}
+
+html,
+body,
+#root {
+  width: 100%;
+  height: 100%;
+  overflow: hidden;
+}
+
 body {
   margin: 0;
   font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', 'Roboto', 'Oxygen',
@@ -7,71 +19,21 @@ body {
   -moz-osx-font-smoothing: grayscale;
 }
 
-.copy-button svg {
-  transition: all .2s linear;
-}
+.qrcode-container {
 
-.copy-button svg:hover {
-  fill: #3875f6;
-}
+  width: 300px;
+  height: 300px;
+  overflow: hidden;
 
-.copy-box {
-  background-color: #fcfcfc;
-  transition: all .2s linear;
-  border-radius: 6px;
-  width: calc(100% - 10px);
-}
-
-.copy-box:hover {
-  background-color: #e8e8e8;
-}
-
-.copy-box div:nth-child(1) {
-  word-wrap: break-word;
-  word-break: break-all;
-  white-space: pre-wrap;
-}
-
-.qrcode-box {
-  position: relative;
-
-  .overlay {
-    position: absolute;
-    width: 100%;
-    height: 100%;
-    background-color: rgba(0, 0, 0, 0);
-    transition: all .2s linear;
-    border-radius: 4px;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    z-index: 2;
+  // 2974 是 3000（组件赋值的大小） - 12 * 2 的 padding - 1 * 2 的 border
+  .ant-qrcode {
+    padding: 0;
+    width: 2974px !important;
+    height: 2974px !important;
   }
-}
 
-.overlay * {
-  display: none;
-}
-
-.qrcode-box:hover .overlay {
-  background-color: rgba(0, 0, 0, 0.7);
-}
-
-.qrcode-box:hover .overlay * {
-  display: block;
-}
-
-.disposition-box {
-  width: 100%;
-  margin-top: 25px;
-}
-
-.disposition-title {
-  margin-bottom: 10px;
-}
-
-.ant-qrcode {
-  width: auto !important;
-  height: auto !important;
-  background-color: transparent !important;
+  canvas {
+    transform: scale(calc(300/2974));
+    transform-origin: top left;
+  }
 }
