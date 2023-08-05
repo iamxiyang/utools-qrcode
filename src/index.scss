@@ -37,3 +37,9 @@ body {
     transform-origin: top left;
   }
 }
+
+.history-text {
+  white-space: break-space;
+  word-break: break-all;
+  word-wrap: break-word;
+}

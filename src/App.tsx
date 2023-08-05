@@ -1,4 +1,4 @@
-import React, { useRef, useState } from 'react'
+import React, { useCallback, useEffect, useRef, useState } from 'react'
 import { Input, QRCode, FloatButton, Drawer, Button, Switch, message, ColorPicker, Tooltip, InputNumber } from 'antd'
 import {
   MenuOutlined,
@@ -11,6 +11,7 @@ import {
 import { Setting } from './types'
 import { useLocalStorage, useSetting } from './hooks'
 import { copyImage, copyText, openUrl } from './utils'
+import { scan } from 'qr-scanner-wechat'
 
 const { TextArea } = Input
 
@@ -40,9 +41,9 @@ const HistoryItem = ({ text }: { text: string }) => {
   }
 
   return (
-    <div className="copy-box min-h-40px bg-#fcfcfc p-4px flex items-center text-14px m-b-8px border-#ddd cursor-text">
+    <div className="min-h-40px bg-#fcfcfc p-4px flex items-center text-14px m-b-8px border-#ddd cursor-text">
       <div className="flex-1">
-        <Button type={isUrl ? 'link' : 'text'} className="p-4px !bg-#fcfcfc" onClick={onTextClick}>
+        <Button type={isUrl ? 'link' : 'text'} className="p-4px !bg-#fcfcfc history-text" onClick={onTextClick}>
           {text}
         </Button>
       </div>
@@ -53,14 +54,39 @@ const HistoryItem = ({ text }: { text: string }) => {
   )
 }
 
+const imgEl = document.createElement('img')
+
 function App() {
   const [text, setText] = useState('')
   const [open, setOpen] = useState(false)
 
   const [setting, updateSetting] = useSetting(initialSetting)
-  const [history, updateHistory] = useLocalStorage('DecodeHistory', [])
+  const [history, updateHistory] = useLocalStorage<string[]>('DecodeHistory', [])
 
   const [messageApi, contextHolder] = message.useMessage()
+
+  useEffect(() => {
+    utools.onPluginEnter(({ code, type, payload }) => {
+      if (type === 'regex') {
+        setText(payload)
+        return
+      }
+      if (type === 'window') {
+        setText('')
+        window.utools.readCurrentBrowserUrl().then(url => {
+          setText(url)
+        })
+        return
+      }
+      if (type === 'img') {
+        parseImg(payload)
+        return
+      }
+      if (payload.includes('扫码') || payload.includes('截图')) {
+        onScan()
+      }
+    })
+  }, [])
 
   const timer: any = useRef(null)
 
@@ -84,12 +110,53 @@ function App() {
     messageApi.success('复制成功')
   }
 
+  const appendHistory = useCallback(
+    (text: string) => {
+      let newArr = [text, ...history]
+      if (setting.isRemoveDuplicates) {
+        newArr = [...new Set(newArr)]
+      }
+      if (newArr.length >= setting.saveHistoryMaxCount) {
+        newArr.pop()
+      }
+      updateHistory(newArr)
+    },
+    [history, setting.saveHistoryMaxCount, setting.isRemoveDuplicates],
+  )
+
+  const parseImg = async (base64Str: string) => {
+    imgEl.onload = async () => {
+      const { text } = await scan(imgEl)
+      if (text) {
+        setText(text)
+        if (setting.isAutoCopyCode) {
+          copyText(text)
+          message.success('解析成功，自动复制成功')
+        } else {
+          message.success('解析成功')
+        }
+        if (setting.isSaveHistory) {
+          appendHistory(text)
+        }
+      } else {
+        message.error('未识别到二维码')
+      }
+    }
+    imgEl.src = base64Str
+  }
+
+  const onScan = async () => {
+    window.utools.screenCapture(parseImg)
+  }
+
   return (
     <div className="w-full h-full flex p-20px">
       {contextHolder}
       <div className="flex-1 flex flex-col">
         <div className="h-160px">
           <TextArea
+            autoFocus
+            value={text}
             maxLength={1000}
             className="!h-full"
             style={{ resize: 'none' }}
@@ -126,7 +193,7 @@ function App() {
       )}
 
       <FloatButton.Group trigger="hover" style={{ right: 30 }} icon={<MenuOutlined />}>
-        <FloatButton icon={<ScanOutlined />} tooltip="扫码" />
+        <FloatButton icon={<ScanOutlined />} tooltip="扫码" onClick={onScan} />
         <FloatButton icon={<SettingOutlined />} tooltip="设置" onClick={() => setOpen(true)} />
         <FloatButton icon={<WechatOutlined />} tooltip="联系作者/打赏" />
       </FloatButton.Group>
@@ -137,7 +204,12 @@ function App() {
           <Switch
             checkedChildren="开启"
             unCheckedChildren="关闭"
-            onChange={() => updateSetting({ isSaveHistory: !setting.isSaveHistory })}
+            onChange={() => {
+              if (setting.isSaveHistory) {
+                updateHistory([])
+              }
+              updateSetting({ isSaveHistory: !setting.isSaveHistory })
+            }}
             defaultChecked={setting.isSaveHistory}
           />
         </Tooltip>
