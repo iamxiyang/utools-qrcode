@@ -1,5 +1,9 @@
 lockfileVersion: '6.0'
 
+settings:
+  autoInstallPeers: true
+  excludeLinksFromLockfile: false
+
 dependencies:
   '@ant-design/icons':
     specifier: ^5.2.4
@@ -10,9 +14,6 @@ dependencies:
   qr-scanner-wechat:
     specifier: ^0.1.2
     version: 0.1.2
-  qrcode.react:
-    specifier: ^3.1.0
-    version: 3.1.0(react@18.2.0)
   react:
     specifier: ^18.2.0
     version: 18.2.0
@@ -30,10 +31,7 @@ devDependencies:
   '@unocss/core':
     specifier: ^0.54.1
     version: 0.54.1
-  '@unocss/preset-attributify':
-    specifier: ^0.54.1
-    version: 0.54.1
-  '@unocss/preset-icons':
+  '@unocss/preset-wind':
     specifier: ^0.54.1
     version: 0.54.1
   '@vitejs/plugin-react':
@@ -2437,7 +2435,3 @@ packages:
     resolution: {integrity: sha512-rVksvsnNCdJ/ohGc6xgPwyN8eheCxsiLM8mxuE/t/mOVqJewPuO1miLpTHQiRgTKCLexL4MeAFVagts7HmNZ2Q==}
     engines: {node: '>=10'}
     dev: true
-
-settings:
-  autoInstallPeers: true
-  excludeLinksFromLockfile: false

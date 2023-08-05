@@ -10,7 +10,6 @@
     "@ant-design/icons": "^5.2.4",
     "antd": "^5.8.1",
     "qr-scanner-wechat": "^0.1.2",
-    "qrcode.react": "^3.1.0",
     "react": "^18.2.0",
     "react-dom": "^18.2.0"
   },
@@ -18,8 +17,7 @@
     "@types/react": "^18.2.18",
     "@types/react-dom": "^18.2.7",
     "@unocss/core": "^0.54.1",
-    "@unocss/preset-attributify": "^0.54.1",
-    "@unocss/preset-icons": "^0.54.1",
+    "@unocss/preset-wind": "^0.54.1",
     "@vitejs/plugin-react": "^4.0.4",
     "sass": "^1.64.2",
     "typescript": "^5.1.6",
