@@ -11,6 +11,7 @@ import {
   Tooltip,
   InputNumber,
   Modal,
+  Popconfirm,
 } from 'antd'
 import {
   MenuOutlined,
@@ -55,7 +56,11 @@ const HistoryItem = ({ text }: { text: string }) => {
   return (
     <div className="min-h-40px bg-#fcfcfc p-4px flex items-center text-14px m-b-8px border-#ddd cursor-text">
       <div className="flex-1">
-        <Button type={isUrl ? 'link' : 'text'} className="p-4px !bg-#fcfcfc history-text" onClick={onTextClick}>
+        <Button
+          type={isUrl ? 'link' : 'text'}
+          className="p-4px !bg-#fcfcfc text-left history-text"
+          onClick={onTextClick}
+        >
           {text}
         </Button>
       </div>
@@ -103,14 +108,20 @@ function App() {
 
   const timer: any = useRef(null)
 
-  const onTextAreaChange = (e: React.ChangeEvent<HTMLTextAreaElement>) => {
-    timer.value && clearTimeout(timer.value)
-    setText(e.target.value)
-    timer.value = setTimeout(() => {
-      copyQrcode()
-      messageApi.success('自动复制成功')
-    }, 1000)
-  }
+  const onTextAreaChange = useCallback(
+    (event: React.ChangeEvent<HTMLTextAreaElement>) => {
+      timer.value && clearTimeout(timer.value)
+      const value = event.target.value
+      setText(value)
+      if (value.trim().length && setting.isAutoCopyQrcode) {
+        timer.value = setTimeout(() => {
+          copyQrcode()
+          messageApi.success('自动复制成功')
+        }, 1000)
+      }
+    },
+    [setting.isAutoCopyQrcode],
+  )
 
   const copyQrcode = () => {
     const canvas = document.querySelector('canvas') as HTMLCanvasElement
@@ -226,9 +237,18 @@ function App() {
       </div>
       {setting.isSaveHistory && (
         <section className="w-30% h-full bg-#f2f2f2 overflow-y-auto overflow-x-hidden px-10px ml-10px rd-6px">
-          <header className="flex items-center justify-between py-10px">
+          <header className="flex items-center justify-between h-52px py-10px">
             <strong>解码历史</strong>
-            <Button type="link" icon={<ClearOutlined />} onClick={() => updateHistory([])}></Button>
+            {history.length > 0 && (
+              <Popconfirm
+                title="确定清空解析历史记录？"
+                onConfirm={() => updateHistory([])}
+                okText="删除"
+                cancelText="取消"
+              >
+                <Button type="link" icon={<ClearOutlined />}></Button>
+              </Popconfirm>
+            )}
           </header>
           <div>
             {history.map(item => (
