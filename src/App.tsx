@@ -24,7 +24,7 @@ import {
   WechatOutlined,
 } from '@ant-design/icons'
 import { Setting } from './types'
-import { useLocalStorage, useSetting } from './hooks'
+import { useLocalStorage, useSetting, useDark } from './hooks'
 import { copyImage, copyText, openUrl } from './utils'
 import { scan } from 'qr-scanner-wechat'
 
@@ -75,6 +75,11 @@ const HistoryItem = ({ text }: { text: string }) => {
 
 const imgEl = document.createElement('img')
 
+const ThemeMap = {
+  'dark': theme.darkAlgorithm,
+  'light': theme.defaultAlgorithm
+}
+
 function App() {
   const [text, setText] = useState('')
   const [open, setOpen] = useState(false)
@@ -83,7 +88,8 @@ function App() {
   const [history, updateHistory] = useLocalStorage<string[]>('DecodeHistory', [])
 
   const [messageApi, messageContextHolder] = message.useMessage()
-  const [modal, modealContextHolder] = Modal.useModal()
+  const [modal, modalContextHolder] = Modal.useModal()
+  const isDark = useDark()
 
   useEffect(() => {
     utools.onPluginEnter(({ code, type, payload }) => {
@@ -207,15 +213,17 @@ function App() {
     })
   }
 
+  const currentTheme = isDark ? 'dark' : 'light';
+
   return (
     <ConfigProvider
       theme={{
-        algorithm: utools.isDarkColors() ? theme.darkAlgorithm : theme.defaultAlgorithm,
+        algorithm: ThemeMap[currentTheme],
       }}
     >
-      <div className={`w-full h-full flex p-20px ${utools.isDarkColors() ? 'dark' : 'light'}`}>
+      <div className={`w-full h-full flex p-20px ${currentTheme}`}>
         {messageContextHolder}
-        {modealContextHolder}
+        {modalContextHolder}
         <div className="flex-1 flex flex-col">
           <div className="h-160px">
             <TextArea
@@ -225,7 +233,7 @@ function App() {
               className="!h-full"
               style={{ resize: 'none' }}
               onChange={onTextAreaChange}
-              placeholder="二维码内容"
+              placeholder='二维码内容'
             />
           </div>
           <div className="flex-1 flex items-center justify-center  mt-30px">
@@ -276,7 +284,7 @@ function App() {
           placement="right"
           onClose={() => setOpen(false)}
           open={open}
-          className={` ${utools.isDarkColors() ? 'dark' : 'light'}`}
+          className={ currentTheme }
         >
           <Tooltip title="开启后二维码解析文本将保存到历史记录" placement="left">
             <h4 className="mt-0 mb-10px dark:text-#d3d3d3">是否保存解析历史</h4>
