@@ -266,8 +266,8 @@ function App() {
               )}
             </header>
             <div>
-              {history.map(item => (
-                <HistoryItem key={item} text={item} />
+              {history.map((item, index) => (
+                <HistoryItem key={index} text={item} />
               ))}
             </div>
           </section>
