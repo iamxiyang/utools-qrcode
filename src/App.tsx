@@ -156,20 +156,24 @@ function HomePage() {
 
   const parseImg = async (base64Str: string) => {
     imgEl.onload = async () => {
-      const { text } = await scan(imgEl)
-      if (text) {
-        setText(text)
-        if (setting.isAutoCopyCode) {
-          copyText(text)
-          message.success('解析成功，自动复制成功')
+      try {
+        const { text } = await scan(imgEl)
+        if (text) {
+          setText(text)
+          if (setting.isAutoCopyCode) {
+            copyText(text)
+            message.success('解析成功，自动复制成功')
+          } else {
+            message.success('解析成功')
+          }
+          if (setting.isSaveHistory) {
+            appendHistory(text)
+          }
         } else {
-          message.success('解析成功')
+          message.error('未识别到二维码')
         }
-        if (setting.isSaveHistory) {
-          appendHistory(text)
-        }
-      } else {
-        message.error('未识别到二维码')
+      } catch (err) {
+        message.error('未识别到二维码-2')
       }
     }
     imgEl.src = base64Str
