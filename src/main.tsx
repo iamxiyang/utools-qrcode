@@ -1,8 +1,8 @@
 import { createRoot } from 'react-dom/client'
 import './index.scss'
 import 'virtual:uno.css'
-import App from './App'
+import MyApp from './App'
 
 const container = document.getElementById('root')
 const root = createRoot(container!)
-root.render(<App />)
+root.render(<MyApp />)

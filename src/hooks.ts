@@ -1,15 +1,11 @@
-import { useEffect, useState } from 'react'
+import { useEffect, useState, useMemo, useRef } from 'react'
 import { Setting } from './types'
 
 export const useLocalStorage = <T>(cacheKey: string, initial: T): [T, (newResult: Partial<T> | T) => void] => {
-  const [result, setResult] = useState(initial)
-
-  useEffect(() => {
+  const [result, setResult] = useState(() => {
     const saved = utools.dbStorage.getItem(cacheKey)
-    if (saved) {
-      setResult(saved)
-    }
-  }, [])
+    return saved || initial
+  })
 
   useEffect(() => {
     utools.dbStorage.setItem(cacheKey, result)
@@ -17,7 +13,7 @@ export const useLocalStorage = <T>(cacheKey: string, initial: T): [T, (newResult
 
   const updateResult = (newResult: Partial<T> | T) => {
     if (!Array.isArray(newResult) && typeof newResult === 'object') {
-      setResult(prevResult => ({ ...prevResult, ...newResult }))
+      setResult((prevResult: T) => ({ ...prevResult, ...newResult }))
     } else {
       setResult(newResult)
     }
@@ -69,4 +65,34 @@ export const useDark = () => {
   })
 
   return systemTheme
+}
+
+
+
+//以下代码实现基于 https://github.com/alibaba/hooks/blob/master/packages/hooks/src/useMemoizedFn/index.ts
+//用于解决使用usecallback导致的历史记录缓存问题
+
+type noop = (this: any, ...args: any[]) => any;
+
+type PickFunction<T extends noop> = (
+  this: ThisParameterType<T>,
+  ...args: Parameters<T>
+) => ReturnType<T>;
+
+export function useMemoizedFn<T extends noop>(fn: T) {
+
+  const fnRef = useRef<T>(fn);
+
+  // why not write `fnRef.current = fn`?
+  // https://github.com/alibaba/hooks/issues/728
+  fnRef.current = useMemo(() => fn, [fn]);
+
+  const memoizedFn = useRef<PickFunction<T>>();
+  if (!memoizedFn.current) {
+    memoizedFn.current = function (this, ...args) {
+      return fnRef.current.apply(this, args);
+    };
+  }
+
+  return memoizedFn.current as T;
 }

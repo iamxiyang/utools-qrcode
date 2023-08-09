@@ -6,14 +6,13 @@ import {
   Drawer,
   Button,
   Switch,
-  message,
   ColorPicker,
   Tooltip,
   InputNumber,
-  Modal,
   Popconfirm,
   ConfigProvider,
   theme,
+  App
 } from 'antd'
 import {
   MenuOutlined,
@@ -24,7 +23,7 @@ import {
   WechatOutlined,
 } from '@ant-design/icons'
 import { Setting } from './types'
-import { useLocalStorage, useSetting, useDark } from './hooks'
+import { useLocalStorage, useSetting, useDark, useMemoizedFn } from './hooks'
 import { copyImage, copyText, openUrl } from './utils'
 import { scan } from 'qr-scanner-wechat'
 
@@ -42,6 +41,7 @@ const initialSetting: Setting = {
 }
 
 const HistoryItem = ({ text }: { text: string }) => {
+  const { message } = App.useApp();
   const isUrl = /^(https?|ftp):\/\/.*/.test(text)
 
   const onCopy = () => {
@@ -80,15 +80,14 @@ const ThemeMap = {
   'light': theme.defaultAlgorithm
 }
 
-function App() {
+function HomePage() {
   const [text, setText] = useState('')
   const [open, setOpen] = useState(false)
 
   const [setting, updateSetting] = useSetting(initialSetting)
   const [history, updateHistory] = useLocalStorage<string[]>('DecodeHistory', [])
+  const { message, modal } = App.useApp();
 
-  const [messageApi, messageContextHolder] = message.useMessage()
-  const [modal, modalContextHolder] = Modal.useModal()
   const isDark = useDark()
 
   useEffect(() => {
@@ -124,7 +123,7 @@ function App() {
       if (value.trim().length && setting.isAutoCopyQrcode) {
         timer.value = setTimeout(() => {
           copyQrcode()
-          messageApi.success('自动复制成功')
+          message.success('自动复制成功')
         }, 1000)
       }
     },
@@ -139,10 +138,10 @@ function App() {
 
   const onCopyQrcode = () => {
     copyQrcode()
-    messageApi.success('复制成功')
+    message.success('复制成功')
   }
 
-  const appendHistory = useCallback(
+  const appendHistory = useMemoizedFn(
     (text: string) => {
       let newArr = [text, ...history]
       if (setting.isRemoveDuplicates) {
@@ -152,8 +151,7 @@ function App() {
         newArr.pop()
       }
       updateHistory(newArr)
-    },
-    [history, setting.saveHistoryMaxCount, setting.isRemoveDuplicates],
+    }
   )
 
   const parseImg = async (base64Str: string) => {
@@ -222,8 +220,6 @@ function App() {
       }}
     >
       <div className={`w-full h-full flex p-20px ${currentTheme}`}>
-        {messageContextHolder}
-        {modalContextHolder}
         <div className="flex-1 flex flex-col">
           <div className="h-160px">
             <TextArea
@@ -371,4 +367,11 @@ function App() {
   )
 }
 
-export default App
+const MyApp: React.FC = () => (
+  <App>
+    <HomePage />
+  </App>
+);
+
+
+export default MyApp
