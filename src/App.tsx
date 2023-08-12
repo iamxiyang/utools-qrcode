@@ -46,7 +46,10 @@ const HistoryItem = ({ text }: { text: string }) => {
 
   const onCopy = () => {
     copyText(text)
-    message.success('复制成功')
+    message.success({
+      content: '复制成功',
+      duration: 1
+    })
   }
 
   const onTextClick = () => {
@@ -123,7 +126,10 @@ function HomePage() {
       if (value.trim().length && setting.isAutoCopyQrcode) {
         timer.value = setTimeout(() => {
           copyQrcode()
-          message.success('自动复制成功')
+          message.success({
+            content: '自动复制成功',
+            duration: 1
+          })
         }, 1000)
       }
     },
@@ -138,7 +144,10 @@ function HomePage() {
 
   const onCopyQrcode = () => {
     copyQrcode()
-    message.success('复制成功')
+    message.success({
+      content: '复制成功',
+      duration: 1
+    })
   }
 
   const appendHistory = useMemoizedFn(
@@ -148,7 +157,7 @@ function HomePage() {
         newArr = [...new Set(newArr)]
       }
       if (newArr.length >= setting.saveHistoryMaxCount) {
-        newArr.pop()
+        newArr = newArr.slice(0, setting.saveHistoryMaxCount);
       }
       updateHistory(newArr)
     }
@@ -162,18 +171,30 @@ function HomePage() {
           setText(text)
           if (setting.isAutoCopyCode) {
             copyText(text)
-            message.success('解析成功，自动复制成功')
+            message.success({
+              content: '解析成功，自动复制成功',
+              duration: 1
+            })
           } else {
-            message.success('解析成功')
+            message.success({
+              content: '解析成功',
+              duration: 1
+            })
           }
           if (setting.isSaveHistory) {
             appendHistory(text)
           }
         } else {
-          message.error('未识别到二维码')
+          message.error({
+            content: '未识别到二维码',
+            duration: 1
+          })
         }
       } catch (err) {
-        message.error('未识别到二维码-2')
+        message.error({
+          content: '未识别到二维码-2',
+          duration: 1
+        })
       }
     }
     imgEl.src = base64Str
@@ -251,7 +272,7 @@ function HomePage() {
           </div>
         </div>
         {setting.isSaveHistory && (
-          <section className="w-30% h-full bg-#f2f2f2 dark:bg-#141414 overflow-y-auto overflow-x-hidden px-10px ml-10px rd-6px">
+          <section className="w-30% h-full bg-#f2f2f2 dark:bg-#141414 overflow-hidden px-10px ml-10px rd-6px">
             <header className="flex items-center justify-between h-52px py-10px">
               <strong className="dark:text-#f2f2f2">解码历史</strong>
               {history.length > 0 && (
@@ -265,7 +286,7 @@ function HomePage() {
                 </Popconfirm>
               )}
             </header>
-            <div>
+            <div className='overflow-y-auto overflow-x-hidden h-[calc(100%-52px)] p-r-6px'>
               {history.map((item, index) => (
                 <HistoryItem key={index} text={item} />
               ))}
