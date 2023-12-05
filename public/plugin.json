@@ -2,8 +2,10 @@
   "main": "index.html",
   "logo": "logo.png",
   "development": {
-    "main": "http://127.0.0.1:5173/index.html" 
+    "main": "http://127.0.0.1:5173/index.html",
+    "preload": "preload.js"
   },
+  "preload": "preload.js",
   "pluginSetting": {
     "single": false
   },
@@ -26,10 +28,32 @@
           "label": "识别图片中二维码"
         },
         {
+          "type": "files",
+          "fileType": "file",
+          "match": "/\\.(png|jpeg|jpg|bmp)$/i",
+          "label": "二维码解析",
+          "minLength": 1,
+          "maxLength": 1
+        },
+        {
           "type": "window",
           "platform": ["win32", "darwin"],
           "match": {
-            "app": ["chrome.exe", "firefox.exe", "MicrosoftEdge.exe", "iexplore.exe", "opera.exe", "brave.exe", "msedge.exe", "Google Chrome.app", "Safari.app", "Opera.app", "Vivaldi.app", "Brave Browser.app", "Microsoft Edge.app"]
+            "app": [
+              "chrome.exe",
+              "firefox.exe",
+              "MicrosoftEdge.exe",
+              "iexplore.exe",
+              "opera.exe",
+              "brave.exe",
+              "msedge.exe",
+              "Google Chrome.app",
+              "Safari.app",
+              "Opera.app",
+              "Vivaldi.app",
+              "Brave Browser.app",
+              "Microsoft Edge.app"
+            ]
           },
           "label": "当前网页地址二维码"
         }

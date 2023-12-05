@@ -12,7 +12,7 @@ import {
   Popconfirm,
   ConfigProvider,
   theme,
-  App
+  App,
 } from 'antd'
 import {
   MenuOutlined,
@@ -41,14 +41,14 @@ const initialSetting: Setting = {
 }
 
 const HistoryItem = ({ text }: { text: string }) => {
-  const { message } = App.useApp();
+  const { message } = App.useApp()
   const isUrl = /^(https?|ftp):\/\/.*/.test(text)
 
   const onCopy = () => {
     copyText(text)
     message.success({
       content: '复制成功',
-      duration: 1
+      duration: 1,
     })
   }
 
@@ -79,8 +79,8 @@ const HistoryItem = ({ text }: { text: string }) => {
 const imgEl = document.createElement('img')
 
 const ThemeMap = {
-  'dark': theme.darkAlgorithm,
-  'light': theme.defaultAlgorithm
+  dark: theme.darkAlgorithm,
+  light: theme.defaultAlgorithm,
 }
 
 function HomePage() {
@@ -89,7 +89,7 @@ function HomePage() {
 
   const [setting, updateSetting] = useSetting(initialSetting)
   const [history, updateHistory] = useLocalStorage<string[]>('DecodeHistory', [])
-  const { message, modal } = App.useApp();
+  const { message, modal } = App.useApp()
 
   const isDark = useDark()
 
@@ -104,6 +104,10 @@ function HomePage() {
         window.utools.readCurrentBrowserUrl().then(url => {
           setText(url)
         })
+        return
+      }
+      if (type === 'files') {
+        window.preload?.fileToBase64(payload[0].path).then(parseImg)
         return
       }
       if (type === 'img') {
@@ -128,7 +132,7 @@ function HomePage() {
           copyQrcode()
           message.success({
             content: '自动复制成功',
-            duration: 1
+            duration: 1,
           })
         }, 1000)
       }
@@ -146,22 +150,20 @@ function HomePage() {
     copyQrcode()
     message.success({
       content: '复制成功',
-      duration: 1
+      duration: 1,
     })
   }
 
-  const appendHistory = useMemoizedFn(
-    (text: string) => {
-      let newArr = [text, ...history]
-      if (setting.isRemoveDuplicates) {
-        newArr = [...new Set(newArr)]
-      }
-      if (newArr.length >= setting.saveHistoryMaxCount) {
-        newArr = newArr.slice(0, setting.saveHistoryMaxCount);
-      }
-      updateHistory(newArr)
+  const appendHistory = useMemoizedFn((text: string) => {
+    let newArr = [text, ...history]
+    if (setting.isRemoveDuplicates) {
+      newArr = [...new Set(newArr)]
     }
-  )
+    if (newArr.length >= setting.saveHistoryMaxCount) {
+      newArr = newArr.slice(0, setting.saveHistoryMaxCount)
+    }
+    updateHistory(newArr)
+  })
 
   const parseImg = async (base64Str: string) => {
     imgEl.onload = async () => {
@@ -173,12 +175,12 @@ function HomePage() {
             copyText(text)
             message.success({
               content: '解析成功，自动复制成功',
-              duration: 1
+              duration: 1,
             })
           } else {
             message.success({
               content: '解析成功',
-              duration: 1
+              duration: 1,
             })
           }
           if (setting.isSaveHistory) {
@@ -187,13 +189,13 @@ function HomePage() {
         } else {
           message.error({
             content: '未识别到二维码',
-            duration: 1
+            duration: 1,
           })
         }
       } catch (err) {
         message.error({
           content: '未识别到二维码-2',
-          duration: 1
+          duration: 1,
         })
       }
     }
@@ -236,7 +238,7 @@ function HomePage() {
     })
   }
 
-  const currentTheme = isDark ? 'dark' : 'light';
+  const currentTheme = isDark ? 'dark' : 'light'
 
   return (
     <ConfigProvider
@@ -254,7 +256,7 @@ function HomePage() {
               className="!h-full"
               style={{ resize: 'none' }}
               onChange={onTextAreaChange}
-              placeholder='二维码内容'
+              placeholder="二维码内容"
             />
           </div>
           <div className="flex-1 flex items-center justify-center  mt-30px">
@@ -286,7 +288,7 @@ function HomePage() {
                 </Popconfirm>
               )}
             </header>
-            <div className='overflow-y-auto overflow-x-hidden h-[calc(100%-52px)] p-r-6px'>
+            <div className="overflow-y-auto overflow-x-hidden h-[calc(100%-52px)] p-r-6px">
               {history.map((item, index) => (
                 <HistoryItem key={index} text={item} />
               ))}
@@ -300,13 +302,7 @@ function HomePage() {
           <FloatButton icon={<WechatOutlined />} tooltip="联系作者/打赏" onClick={onShowContact} />
         </FloatButton.Group>
 
-        <Drawer
-          title="设置"
-          placement="right"
-          onClose={() => setOpen(false)}
-          open={open}
-          className={ currentTheme }
-        >
+        <Drawer title="设置" placement="right" onClose={() => setOpen(false)} open={open} className={currentTheme}>
           <Tooltip title="开启后二维码解析文本将保存到历史记录" placement="left">
             <h4 className="mt-0 mb-10px dark:text-#d3d3d3">是否保存解析历史</h4>
             <Switch
@@ -396,7 +392,6 @@ const MyApp: React.FC = () => (
   <App>
     <HomePage />
   </App>
-);
-
+)
 
 export default MyApp
