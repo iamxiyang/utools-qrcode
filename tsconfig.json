@@ -20,7 +20,8 @@
     "noEmit": true,
     "jsx": "react-jsx",
     "types": [
-      "utools-api-types"
+      "utools-api-types",
+      "node"
     ]
   },
   "include": [
