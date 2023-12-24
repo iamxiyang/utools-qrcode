@@ -12,7 +12,8 @@
     "antd": "^5.12.1",
     "qr-scanner-wechat": "^0.1.3",
     "react": "^18.2.0",
-    "react-dom": "^18.2.0"
+    "react-dom": "^18.2.0",
+    "valtio": "^1.12.1"
   },
   "devDependencies": {
     "@types/react": "^18.2.42",

@@ -17,7 +17,7 @@ export default defineConfig({
     }),
     React(),
     createPreloadPlugin({
-      path: 'src/preload.ts', // 修改 preload.ts 的路径
+      path: 'src/preload/index.ts',
     }),
   ],
 })
