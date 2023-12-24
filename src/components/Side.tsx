@@ -13,7 +13,7 @@ export const Side = () => {
     try {
       if (!text) return history
       const reg = new RegExp(text)
-      return history.filter(item => reg.test(item))
+      return history.filter(item => reg.test(item.text))
     } catch (e) {
       return history
     }
@@ -38,15 +38,15 @@ export const Side = () => {
       </header>
       <Input
         placeholder="搜索记录/支持正则"
-        className="mb-12px mr-6px"
+        className="mb-12px "
         value={text}
         onChange={e => {
           setText(e.target.value)
         }}
       />
-      <div className="overflow-y-auto overflow-x-hidden h-[calc(100%-52px)] p-r-6px">
+      <div className="overflow-y-auto overflow-x-hidden h-[calc(100%-52px)]">
         {filteredHistory.map((item, index) => (
-          <HistoryItem key={index} text={item} />
+          <HistoryItem key={index} {...item} />
         ))}
       </div>
     </section>

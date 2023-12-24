@@ -1,8 +1,9 @@
 import { App, Button, Tooltip } from 'antd'
 import { CopyOutlined } from '@ant-design/icons'
-import { copyText, openUrl } from '../utils'
+import { copyText, formatTime, openUrl } from '../utils'
+import { History } from '../types/types'
 
-export const HistoryItem = ({ text }: { text: string }) => {
+export const HistoryItem = ({ text, createTime }: History) => {
   const { message } = App.useApp()
   const isUrl = /^(https?|ftp):\/\/.*/.test(text)
 
@@ -25,11 +26,14 @@ export const HistoryItem = ({ text }: { text: string }) => {
       <div className="flex-1">
         <Button
           type={isUrl ? 'link' : 'text'}
-          className="p-4px !bg-#fcfcfc !dark:bg-#303133 text-left history-text"
+          className="px-4px py-2px !bg-#fcfcfc !dark:bg-#303133 text-left history-text"
           onClick={onTextClick}
         >
           {text}
         </Button>
+        {createTime && (
+          <p className="px-4px py-2px m-0 text-#f2f2f2 dark:text-#767676 text-12px">{formatTime(createTime)}</p>
+        )}
       </div>
       <Tooltip title="复制" placement="left">
         <Button size="small" icon={<CopyOutlined className="cursor-pointer" />} type="text" onClick={onCopy}></Button>

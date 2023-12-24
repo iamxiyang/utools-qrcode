@@ -9,6 +9,7 @@ import { Side } from './components/Side'
 import { Setting } from './components/Setting'
 import { useProxy } from 'valtio/utils'
 import { state } from './store'
+import { History } from './types/types'
 
 const { TextArea } = Input
 
@@ -93,9 +94,11 @@ function HomePage() {
   }
 
   const appendHistory = useMemoizedFn((text: string) => {
-    let newArr = [text, ...history]
+    let newArr = [{ text, createTime: Date.now() }, ...history]
     if (setting.isRemoveDuplicates) {
-      newArr = [...new Set(newArr)]
+      newArr = newArr.filter((item: History, index: number, arr: History[]) => {
+        return arr.findIndex((item2: History) => item2.text === item.text) === index
+      })
     }
     if (newArr.length >= setting.saveHistoryMaxCount) {
       newArr = newArr.slice(0, setting.saveHistoryMaxCount)

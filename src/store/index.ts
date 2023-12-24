@@ -1,5 +1,5 @@
 import { proxy, snapshot, subscribe } from 'valtio'
-import { Setting } from '../types/types'
+import { History, Setting } from '../types/types'
 import { subscribeKey } from 'valtio/utils'
 
 const initialSetting = {
@@ -16,7 +16,7 @@ const initialSetting = {
 
 type State = {
   setting: Setting
-  decodeHistory: string[]
+  decodeHistory: History[]
 }
 
 const state = proxy<State>({
@@ -24,7 +24,14 @@ const state = proxy<State>({
     ...initialSetting,
     ...(utools.dbStorage.getItem('setting') || {}),
   },
-  decodeHistory: utools.dbStorage.getItem('DecodeHistory') || [],
+  decodeHistory: (utools.dbStorage.getItem('DecodeHistory') || []).map((it: History) => {
+    if (it.text) {
+      return it
+    }
+    return {
+      text: it,
+    }
+  }),
 })
 
 // 监听数据变化，保存到数据库

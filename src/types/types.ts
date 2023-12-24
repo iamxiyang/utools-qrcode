@@ -15,3 +15,8 @@ export interface Setting {
   qrCodeColor: string
   qrCodeBgColor: string
 }
+
+export interface History {
+  text: string
+  createTime?: number | Date
+}
