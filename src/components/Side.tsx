@@ -37,6 +37,9 @@ export const Side = () => {
         )}
       </header>
       <Input
+        style={{
+          display: history.length > 0 ? 'block' : 'none',
+        }}
         placeholder="搜索记录/支持正则"
         className="mb-12px "
         value={text}
@@ -48,6 +51,11 @@ export const Side = () => {
         {filteredHistory.map((item, index) => (
           <HistoryItem key={index} {...item} />
         ))}
+        {history.length === 0 && (
+          <div className="flex items-center justify-center h-full">
+            <p className="text-#888 dark:text-#767676">暂无解析记录</p>
+          </div>
+        )}
       </div>
     </section>
   )
