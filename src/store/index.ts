@@ -8,7 +8,6 @@ const initialSetting = {
   saveHistoryMaxCount: 20,
   isAutoCopyCode: false,
   isAutoCopyQrcode: false,
-  isShowFloatButton: true,
   // 二维码相关配置
   qrCodeColor: '#000000',
   qrCodeBgColor: '#ffffff',

@@ -12,20 +12,8 @@ export const Setting = (props: SettingProps) => {
   const currentTheme = useTheme()
   return (
     <Drawer title="设置" placement="right" onClose={props.onClose} open={props.open} className={currentTheme}>
-      <Tooltip title="开启后默认展开悬浮按钮，扫码按钮会直接显示出来，扫码更方便" placement="left">
-        <h4 className="mt-0 mb-10px dark:text-#d3d3d3">是否默认展开悬浮按钮</h4>
-        <Switch
-          checkedChildren="开启"
-          unCheckedChildren="关闭"
-          onChange={() => {
-            setting.isShowFloatButton = !setting.isShowFloatButton
-          }}
-          defaultChecked={setting.isShowFloatButton}
-        />
-      </Tooltip>
-
       <Tooltip title="开启后二维码解析文本将保存到历史记录，生成的二维码也允许主动保存到记录中" placement="left">
-        <h4 className="mb-10px dark:text-#d3d3d3">是否保存解析记录</h4>
+        <h4 className="mt-0 mb-10px dark:text-#d3d3d3">是否保存解析记录</h4>
         <Switch
           checkedChildren="开启"
           unCheckedChildren="关闭"

@@ -28,9 +28,6 @@ function HomePage() {
   const [open, setOpen] = useState(false)
 
   const setting = useProxy(state.setting)
-  const history = useProxy(state.decodeHistory)
-
-  const [isOpenFloatButton, setIsOpenFloatButton] = useState(!!setting.isShowFloatButton)
 
   useEffect(() => {
     utools.onPluginEnter(({ code, type, payload }) => {
@@ -205,13 +202,7 @@ function HomePage() {
         {setting.isSaveHistory && <Side />}
       </div>
 
-      <FloatButton.Group
-        trigger="click"
-        open={isOpenFloatButton}
-        onOpenChange={open => setIsOpenFloatButton(open)}
-        style={{ right: 30 }}
-        icon={<MenuOutlined />}
-      >
+      <FloatButton.Group style={{ right: 30 }} icon={<MenuOutlined />}>
         <FloatButton icon={<ScanOutlined />} tooltip="扫码" onClick={onScan} />
         <FloatButton icon={<SettingOutlined />} tooltip="设置" onClick={() => setOpen(true)} />
         <FloatButton icon={<WechatOutlined />} tooltip="联系作者/打赏" onClick={onShowContact} />
