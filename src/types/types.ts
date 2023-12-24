@@ -9,6 +9,8 @@ export interface Setting {
   isAutoCopyCode: boolean
   // 是否自动复制生成的二维码
   isAutoCopyQrcode: boolean
+  // 是否默认展开悬浮按钮
+  isShowFloatButton: boolean
   // 二维码相关配置
   qrCodeColor: string
   qrCodeBgColor: string
