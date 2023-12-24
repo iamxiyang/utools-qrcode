@@ -32,7 +32,7 @@ export const HistoryItem = ({ text, createTime }: History) => {
           {text}
         </Button>
         {createTime && (
-          <p className="px-4px py-2px m-0 text-#f2f2f2 dark:text-#767676 text-12px">{formatTime(createTime)}</p>
+          <p className="px-4px py-2px m-0 text-#888 dark:text-#767676 text-12px">{formatTime(createTime)}</p>
         )}
       </div>
       <Tooltip title="复制" placement="left">
