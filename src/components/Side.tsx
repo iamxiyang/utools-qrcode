@@ -22,10 +22,10 @@ export const Side = () => {
   return (
     <section className="w-30% h-full bg-#f2f2f2 dark:bg-#141414 overflow-hidden px-10px ml-10px rd-6px">
       <header className="flex items-center justify-between h-52px py-10px">
-        <strong className="dark:text-#f2f2f2">解码历史</strong>
+        <strong className="dark:text-#f2f2f2">记录</strong>
         {history.length > 0 && (
           <Popconfirm
-            title="确定清空解析历史记录？"
+            title="确定清空已经保存的历史记录？"
             onConfirm={() => {
               state.decodeHistory = []
             }}

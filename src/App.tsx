@@ -1,7 +1,7 @@
 import React, { useCallback, useEffect, useRef, useState } from 'react'
-import { Input, QRCode, FloatButton, Tooltip, ConfigProvider, theme, App } from 'antd'
+import { Input, QRCode, FloatButton, Tooltip, ConfigProvider, theme, App, Button } from 'antd'
 import { MenuOutlined, SettingOutlined, ScanOutlined, WechatOutlined } from '@ant-design/icons'
-import { useTheme, useMemoizedFn } from './hooks'
+import { useTheme } from './hooks'
 import { copyImage, copyText } from './utils'
 import { scan } from 'qr-scanner-wechat'
 import { Contact } from './components/Contact'
@@ -93,8 +93,9 @@ function HomePage() {
     })
   }
 
-  const appendHistory = useMemoizedFn((text: string) => {
-    let newArr = [{ text, createTime: Date.now() }, ...history]
+  const appendHistory = (text: string) => {
+    if (!text) return
+    let newArr = [{ text, createTime: Date.now() }, ...state.decodeHistory]
     if (setting.isRemoveDuplicates) {
       newArr = newArr.filter((item: History, index: number, arr: History[]) => {
         return arr.findIndex((item2: History) => item2.text === item.text) === index
@@ -104,7 +105,7 @@ function HomePage() {
       newArr = newArr.slice(0, setting.saveHistoryMaxCount)
     }
     state.decodeHistory = newArr
-  })
+  }
 
   const parseImg = async (base64Str: string) => {
     imgEl.onload = async () => {
@@ -166,7 +167,7 @@ function HomePage() {
     >
       <div className={`w-full h-full flex p-20px ${currentTheme}`}>
         <div className="flex-1 flex flex-col">
-          <div className="h-160px">
+          <div className="h-160px relative">
             <TextArea
               autoFocus
               value={text}
@@ -176,8 +177,18 @@ function HomePage() {
               onChange={onTextAreaChange}
               placeholder="二维码内容"
             />
+            {setting.isSaveHistory && (
+              <Button
+                style={{ display: text ? 'block' : 'none' }}
+                className="absolute bottom-4px right-0 z-9 opacity-40 hover:opacity-100"
+                type="text"
+                onClick={() => appendHistory(text)}
+              >
+                保存到记录
+              </Button>
+            )}
           </div>
-          <div className="flex-1 flex items-center justify-center  mt-30px">
+          <div className="flex-1 flex items-center justify-center mt-30px">
             <Tooltip title="点击复制二维码" placement="top">
               <div className="qrcode-container" onClick={onCopyQrcode}>
                 <QRCode

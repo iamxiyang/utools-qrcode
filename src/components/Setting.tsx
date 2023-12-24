@@ -24,8 +24,8 @@ export const Setting = (props: SettingProps) => {
         />
       </Tooltip>
 
-      <Tooltip title="开启后二维码解析文本将保存到历史记录" placement="left">
-        <h4 className="mb-10px dark:text-#d3d3d3">是否保存解析历史</h4>
+      <Tooltip title="开启后二维码解析文本将保存到历史记录，生成的二维码也允许主动保存到记录中" placement="left">
+        <h4 className="mb-10px dark:text-#d3d3d3">是否保存解析记录</h4>
         <Switch
           checkedChildren="开启"
           unCheckedChildren="关闭"
