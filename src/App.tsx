@@ -199,7 +199,7 @@ function HomePage() {
             </Tooltip>
           </div>
         </div>
-        {setting.isSaveHistory && <Side />}
+        {setting.isSaveHistory && <Side onGrandchildData={setText} />}
       </div>
 
       <FloatButton.Group style={{ right: 30 }} icon={<MenuOutlined />}>

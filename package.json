@@ -8,6 +8,7 @@
   },
   "dependencies": {
     "@ant-design/icons": "^5.2.6",
+    "@formkit/auto-animate": "^0.8.1",
     "@types/node": "^20.10.3",
     "antd": "^5.12.1",
     "qr-scanner-wechat": "^0.1.3",

@@ -4,10 +4,12 @@ import { HistoryItem } from './HistoryItem'
 import { useProxy } from 'valtio/utils'
 import { state } from '../store'
 import { useMemo, useState } from 'react'
+import { useAutoAnimate } from '@formkit/auto-animate/react'
 
-export const Side = () => {
+export const Side = (props:any) => {
   const [text, setText] = useState('')
   const history = useProxy(state).decodeHistory
+  const [parent] = useAutoAnimate()
 
   const filteredHistory = useMemo(() => {
     try {
@@ -44,12 +46,12 @@ export const Side = () => {
         className="mb-12px "
         value={text}
         onChange={e => {
-          setText(e.target.value)
+          setText(e.target.value) 
         }}
       />
-      <div className="overflow-y-auto overflow-x-hidden h-[calc(100%-52px)]">
+      <div className="overflow-y-auto overflow-x-hidden h-[calc(100%-52px)]" ref={parent}>
         {filteredHistory.map((item, index) => (
-          <HistoryItem key={index} {...item} />
+          <HistoryItem setQrcodeText={props.onGrandchildData} key={item.createTime?.toString()} index={index} {...item} />
         ))}
         {history.length === 0 && (
           <div className="flex items-center justify-center h-full">
