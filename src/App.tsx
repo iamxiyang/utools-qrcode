@@ -31,7 +31,7 @@ function HomePage() {
 
   useEffect(() => {
     utools.onPluginEnter(({ code, type, payload }) => {
-      if (type === 'regex') {
+      if (type === 'regex' || type === 'over') {
         setText(payload)
         return
       }

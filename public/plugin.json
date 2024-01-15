@@ -24,6 +24,10 @@
           "label": "生成二维码"
         },
         {
+          "type": "over",
+          "label": "生成二维码"
+        },
+        {
           "type": "img",
           "label": "识别图片中二维码"
         },
@@ -31,7 +35,7 @@
           "type": "files",
           "fileType": "file",
           "match": "/\\.(png|jpeg|jpg|bmp)$/i",
-          "label": "二维码解析",
+          "label": "识别图片中二维码",
           "minLength": 1,
           "maxLength": 1
         },
