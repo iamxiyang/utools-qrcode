@@ -1,4 +1,4 @@
-import React, { useCallback, useEffect, useRef, useState } from 'react'
+import React, { useCallback, useEffect, useRef, useState, createContext } from 'react'
 import { Input, QRCode, FloatButton, Tooltip, ConfigProvider, theme, App, Button } from 'antd'
 import { MenuOutlined, SettingOutlined, ScanOutlined, WechatOutlined } from '@ant-design/icons'
 import { useTheme } from './hooks'
@@ -11,6 +11,7 @@ import { useProxy } from 'valtio/utils'
 import { state } from './store'
 import { History } from './types/types'
 
+const historyItemContext = createContext<Function>(() => {})
 const { TextArea } = Input
 
 const imgEl = document.createElement('img')
@@ -199,7 +200,11 @@ function HomePage() {
             </Tooltip>
           </div>
         </div>
-        {setting.isSaveHistory && <Side onGrandchildData={setText} />}
+        {setting.isSaveHistory && (
+          <historyItemContext.Provider value={setText}>
+            <Side />
+          </historyItemContext.Provider>
+        )}
       </div>
 
       <FloatButton.Group style={{ right: 30 }} icon={<MenuOutlined />}>
@@ -212,4 +217,4 @@ function HomePage() {
   )
 }
 
-export default HomePage
+export { HomePage, historyItemContext }
