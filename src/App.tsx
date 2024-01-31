@@ -160,7 +160,14 @@ function HomePage() {
   return (
     <ConfigProvider
       theme={{
+        cssVar: true,
+        hashed: false,
         algorithm: ThemeMap[currentTheme],
+        token: {
+          colorLink: '#5eb1ff',
+          colorLinkHover: '#1890ff',
+          colorLinkActive: '#1890ff',
+        },
       }}
     >
       <div className={`w-full h-full flex p-20px ${currentTheme}`}>

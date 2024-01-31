@@ -19,6 +19,14 @@ body {
   -moz-osx-font-smoothing: grayscale;
 }
 
+.ant-app {
+  height: 100% !important;
+}
+
+.ant-dropdown .ant-dropdown-menu .ant-dropdown-menu-item {
+  --ant-control-padding-horizontal: 0
+}
+
 .qrcode-container {
   width: 300px;
   height: 300px;
@@ -42,8 +50,4 @@ body {
   white-space: pre-wrap;
   word-break: break-all;
   word-wrap: break-word;
-}
-
-.ant-app {
-  height: 100% !important;
 }
