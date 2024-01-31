@@ -10,6 +10,7 @@ import { Setting } from './components/Setting'
 import { useProxy } from 'valtio/utils'
 import { state } from './store'
 import { History } from './types/types'
+import ButtonGroup from 'antd/es/button/button-group'
 
 const historyItemContext = createContext<Function>(() => {})
 const { TextArea } = Input
@@ -84,11 +85,20 @@ function HomePage() {
   }
 
   const onCopyQrcode = () => {
-    copyQrcode()
     message.success({
       content: '复制成功',
       duration: 1,
     })
+    copyQrcode()
+  }
+
+  const onDownloadQrcode = () => {
+    const canvas = document.querySelector('canvas') as HTMLCanvasElement
+    if (!canvas) return
+    const a = document.createElement('a')
+    a.download = 'qrcode.png'
+    a.href = canvas.toDataURL('image/png')
+    a.click()
   }
 
   const appendHistory = (text: string) => {
@@ -164,7 +174,7 @@ function HomePage() {
         hashed: false,
         algorithm: ThemeMap[currentTheme],
         token: {
-          colorLink: '#5eb1ff',
+          colorLink: '#1890ff',
           colorLinkHover: '#1890ff',
           colorLinkActive: '#1890ff',
         },
@@ -193,7 +203,7 @@ function HomePage() {
               </Button>
             )}
           </div>
-          <div className="flex-1 flex items-center justify-center mt-30px">
+          <div className="flex-1 flex  flex-col items-center justify-center mt-30px">
             <Tooltip title="点击复制二维码" placement="top">
               <div className="qrcode-container" onClick={onCopyQrcode}>
                 <QRCode
@@ -205,6 +215,14 @@ function HomePage() {
                 />
               </div>
             </Tooltip>
+            <div className="mt-10px">
+              <Button type="link" onClick={onCopyQrcode}>
+                复制二维码
+              </Button>
+              <Button type="link" onClick={onDownloadQrcode}>
+                下载二维码
+              </Button>
+            </div>
           </div>
         </div>
         {setting.isSaveHistory && (
