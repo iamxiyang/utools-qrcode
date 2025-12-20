@@ -4,6 +4,22 @@
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>二维码小助手</title>
+    <script>
+      // 在 React 加载前立即设置主题类，避免闪烁
+      (function() {
+        try {
+          // utools 环境下使用 utools.isDarkColors()
+          if (typeof utools !== 'undefined' && utools.isDarkColors && utools.isDarkColors()) {
+            document.documentElement.classList.add('dark');
+          } else if (window.matchMedia && window.matchMedia('(prefers-color-scheme: dark)').matches) {
+            // 非 utools 环境下使用系统偏好
+            document.documentElement.classList.add('dark');
+          }
+        } catch (e) {
+          // 忽略错误
+        }
+      })();
+    </script>
   </head>
   <body>
     <div id="root"></div>

@@ -1,2 +1,2 @@
-export * from './useDark'
-export * from './useTheme'
+export { useDark, useTheme, useSyncThemeClass } from './useDark'
+export { useDebounce } from './useDebounce'

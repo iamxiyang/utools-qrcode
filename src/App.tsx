@@ -1,245 +1,306 @@
-import React, { useCallback, useEffect, useRef, useState, createContext } from 'react'
-import { Input, QRCode, FloatButton, Tooltip, ConfigProvider, theme, App, Button } from 'antd'
-import { MenuOutlined, SettingOutlined, ScanOutlined, WechatOutlined } from '@ant-design/icons'
-import { useTheme } from './hooks'
-import { copyImage, copyText } from './utils'
-import { scan } from 'qr-scanner-wechat'
-import { Contact } from './components/Contact'
-import { Side } from './components/Side'
-import { Setting } from './components/Setting'
+import React, { useCallback, useEffect, useState, useRef } from 'react'
+import { ConfigProvider, theme, App, Tooltip, Modal, Button } from 'antd'
+import {
+  SettingOutlined,
+  ScanOutlined,
+  HistoryOutlined,
+  WechatOutlined,
+  QrcodeOutlined,
+  AppstoreOutlined,
+  HeartOutlined,
+} from '@ant-design/icons'
+import { useTheme, useSyncThemeClass } from './hooks'
+import { state, shouldShowAppreciate, markAppreciateShown, setPendingParseImage, setPendingParseText } from './store'
 import { useProxy } from 'valtio/utils'
-import { state } from './store'
-import { History } from './types/types'
-import ButtonGroup from 'antd/es/button/button-group'
-
-const historyItemContext = createContext<Function>(() => {})
-const { TextArea } = Input
-
-const imgEl = document.createElement('img')
+import { AppMode, History } from './types/types'
+import { ParsePanel } from './components/ParsePanel'
+import { GeneratePanel } from './components/GeneratePanel'
+import { BatchPanel } from './components/BatchPanel'
+import { HistoryDrawer } from './components/HistoryDrawer'
+import { Setting } from './components/Setting'
+import { Contact } from './components/Contact'
 
 const ThemeMap = {
   dark: theme.darkAlgorithm,
   light: theme.defaultAlgorithm,
 }
 
+const modeOptions = [
+  { key: 'parse' as const, label: '解析', icon: <ScanOutlined /> },
+  { key: 'generate' as const, label: '生成', icon: <QrcodeOutlined /> },
+  { key: 'batch' as const, label: '批量', icon: <AppstoreOutlined /> },
+]
+
 function HomePage() {
   const currentTheme = useTheme()
-  const { message, modal } = App.useApp()
+  const { modal } = App.useApp()
+  
+  const { mode: currentMode, usageStats } = useProxy(state)
+  const { history } = useProxy(state)
+  const historyCount = history.length
+  
+  const initialHistoryCount = useRef(historyCount)
 
-  const [text, setText] = useState('')
-  const [open, setOpen] = useState(false)
+  const [settingOpen, setSettingOpen] = useState(false)
+  const [historyOpen, setHistoryOpen] = useState(false)
+  const [appreciateOpen, setAppreciateOpen] = useState(false)
 
-  const setting = useProxy(state.setting)
+  // 检测是否需要显示赞赏引导
+  useEffect(() => {
+    const timer = setTimeout(() => {
+      if (shouldShowAppreciate()) {
+        setAppreciateOpen(true)
+        markAppreciateShown()
+      }
+    }, 2000)
+    return () => clearTimeout(timer)
+  }, [])
 
+  // 处理 uTools 入口
   useEffect(() => {
     utools.onPluginEnter(({ code, type, payload }) => {
+      // URL 正则匹配或选中文本 -> 生成二维码
       if (type === 'regex' || type === 'over') {
-        setText(payload)
+        state.mode = 'generate'
+        // 判断是否是 URL
+        if (/^https?:\/\//i.test(payload)) {
+          state.generateForm.protocol = 'url'
+          state.generateForm.url = payload
+        } else {
+          state.generateForm.protocol = 'text'
+          state.generateForm.text = payload
+        }
         return
       }
+      
+      // 浏览器窗口 -> 获取当前网页 URL 生成二维码
       if (type === 'window') {
-        setText('')
+        state.mode = 'generate'
         window.utools.readCurrentBrowserUrl().then(url => {
-          setText(url)
+          if (url) {
+            state.generateForm.protocol = 'url'
+            state.generateForm.url = url
+          }
         })
         return
       }
+      
+      // 图片文件 -> 解析二维码
       if (type === 'files') {
-        window.preload?.fileToBase64(payload[0].path).then(parseImg)
+        state.mode = 'parse'
+        window.preload?.fileToBase64(payload[0].path).then((base64: string) => {
+          setPendingParseImage(base64)
+        })
         return
       }
+      
+      // 剪贴板图片 -> 解析二维码
       if (type === 'img') {
-        parseImg(payload)
+        state.mode = 'parse'
+        setPendingParseImage(payload)
         return
       }
-      if (payload.includes('扫码') || payload.includes('截图')) {
-        onScan()
+      
+      // 关键词入口处理
+      const keyword = typeof payload === 'string' ? payload.toLowerCase() : ''
+      
+      // 扫码/截图相关关键词 -> 触发截图扫码
+      if (keyword.includes('扫') || keyword.includes('截图') || keyword.includes('解析')) {
+        state.mode = 'parse'
+        setTimeout(() => {
+          window.utools?.screenCapture((base64: string) => {
+            setPendingParseImage(base64)
+          })
+        }, 100)
+        return
       }
+      
+      // 生成相关关键词 -> 进入生成模式
+      if (keyword.includes('生成')) {
+        state.mode = 'generate'
+        return
+      }
+      
+      // 默认：根据设置的默认模式
+      // state.mode 已经在 store 初始化时根据 setting.defaultMode 设置
     })
   }, [])
 
-  const timer: any = useRef(null)
+  const handleModeChange = useCallback((value: AppMode) => {
+    state.mode = value
+  }, [])
 
-  const onTextAreaChange = useCallback(
-    (event: React.ChangeEvent<HTMLTextAreaElement>) => {
-      timer.value && clearTimeout(timer.value)
-      const value = event.target.value
-      setText(value)
-      if (value.trim().length && setting.isAutoCopyQrcode) {
-        timer.value = setTimeout(() => {
-          copyQrcode()
-          message.success({
-            content: '自动复制成功',
-            duration: 1,
-          })
-        }, 1000)
-      }
-    },
-    [setting.isAutoCopyQrcode],
-  )
-
-  const copyQrcode = () => {
-    const canvas = document.querySelector('canvas') as HTMLCanvasElement
-    if (!canvas) return
-    copyImage(canvas.toDataURL('image/png'))
-  }
-
-  const onCopyQrcode = () => {
-    message.success({
-      content: '复制成功',
-      duration: 1,
-    })
-    copyQrcode()
-  }
-
-  const onDownloadQrcode = () => {
-    const canvas = document.querySelector('canvas') as HTMLCanvasElement
-    if (!canvas) return
-    const a = document.createElement('a')
-    a.download = 'qrcode.png'
-    a.href = canvas.toDataURL('image/png')
-    a.click()
-  }
-
-  const appendHistory = (text: string) => {
-    if (!text) return
-    let newArr = [{ text, createTime: Date.now() }, ...state.decodeHistory]
-    if (setting.isRemoveDuplicates) {
-      newArr = newArr.filter((item: History, index: number, arr: History[]) => {
-        return arr.findIndex((item2: History) => item2.text === item.text) === index
-      })
+  const handleHistorySelect = useCallback((item: History) => {
+    setHistoryOpen(false)
+    if (currentMode === 'parse') {
+      setPendingParseText(item.text)
+    } else {
+      state.generateForm.protocol = 'text'
+      state.generateForm.text = item.text
     }
-    if (newArr.length >= setting.saveHistoryMaxCount) {
-      newArr = newArr.slice(0, setting.saveHistoryMaxCount)
-    }
-    state.decodeHistory = newArr
-  }
+  }, [currentMode])
 
-  const parseImg = async (base64Str: string) => {
-    imgEl.onload = async () => {
-      try {
-        const { text } = await scan(imgEl)
-        if (text) {
-          setText(text)
-          if (setting.isAutoCopyCode) {
-            copyText(text)
-            message.success({
-              content: '解析成功，自动复制成功',
-              duration: 1,
-            })
-          } else {
-            message.success({
-              content: '解析成功',
-              duration: 1,
-            })
-          }
-          if (setting.isSaveHistory) {
-            appendHistory(text)
-          }
-        } else {
-          message.error({
-            content: '未识别到二维码',
-            duration: 1,
-          })
-        }
-      } catch (err) {
-        message.error({
-          content: '未识别到二维码-2',
-          duration: 1,
-        })
-      }
-    }
-    imgEl.src = base64Str
-  }
-
-  const onScan = async () => {
-    window.utools.screenCapture(parseImg)
-  }
-
-  const onShowContact = () => {
+  const handleShowContact = useCallback(() => {
     modal.info({
       title: '联系/打赏作者',
-      width: 580,
+      width: 480,
       centered: true,
       icon: null,
       okText: '关闭',
       content: Contact,
+      className: 'contact-modal',
     })
+  }, [modal])
+
+  const renderPanel = () => {
+    switch (currentMode) {
+      case 'parse':
+        return <ParsePanel />
+      case 'generate':
+        return <GeneratePanel />
+      case 'batch':
+        return <BatchPanel />
+      default:
+        return <ParsePanel />
+    }
   }
 
   return (
+    <>
+      <div className={`w-full h-full flex flex-col bg-bg overflow-hidden ${currentTheme}`}>
+        {/* 顶部导航 */}
+        <header className="shrink-0 flex justify-between items-center px-5 py-2.5 bg-bg-blur border-b border-border-light backdrop-blur-lg sticky top-0 z-100">
+          {/* 模式切换 */}
+          <div className="flex bg-bg-tertiary rounded-full p-1 gap-1">
+            {modeOptions.map((opt) => (
+              <button
+                key={opt.key}
+                className={`flex items-center justify-center gap-1.5 px-4 py-2 rounded-full text-sm font-medium cursor-pointer transition-all duration-150 bg-transparent border-none outline-none ${
+                  currentMode === opt.key
+                    ? 'bg-bg-secondary text-primary shadow-sm'
+                    : 'text-text-secondary hover:text-text hover:bg-bg-secondary'
+                }`}
+                onClick={() => handleModeChange(opt.key)}
+              >
+                <span className="text-base">{opt.icon}</span>
+                <span>{opt.label}</span>
+              </button>
+            ))}
+          </div>
+
+          {/* 右侧操作区 */}
+          <div className="flex items-center gap-1">
+            <Tooltip title="历史记录" placement="bottom">
+              <button
+                className="relative w-9 h-9 flex items-center justify-center rounded-md cursor-pointer transition-all duration-150 bg-transparent text-text-secondary border-none outline-none text-lg hover:bg-primary-light hover:text-primary"
+                onClick={() => setHistoryOpen(true)}
+              >
+                <HistoryOutlined />
+                {historyCount > 0 && (
+                  <span className={`absolute top-1 right-1 min-w-4 h-4 px-1 text-[10px] font-semibold leading-4 text-center text-white rounded-full transition-colors ${
+                    historyCount > initialHistoryCount.current ? 'bg-primary' : 'bg-text-tertiary'
+                  }`}>
+                    {historyCount > 99 ? '99+' : historyCount}
+                  </span>
+                )}
+              </button>
+            </Tooltip>
+            <Tooltip title="联系作者" placement="bottom">
+              <button 
+                className="w-9 h-9 flex items-center justify-center rounded-md cursor-pointer transition-all duration-150 bg-transparent text-text-secondary border-none outline-none text-lg hover:bg-primary-light hover:text-primary"
+                onClick={handleShowContact}
+              >
+                <WechatOutlined />
+              </button>
+            </Tooltip>
+            <Tooltip title="设置" placement="bottom">
+              <button 
+                className="w-9 h-9 flex items-center justify-center rounded-md cursor-pointer transition-all duration-150 bg-transparent text-text-secondary border-none outline-none text-lg hover:bg-primary-light hover:text-primary"
+                onClick={() => setSettingOpen(true)}
+              >
+                <SettingOutlined />
+              </button>
+            </Tooltip>
+          </div>
+        </header>
+
+        {/* 主操作区 */}
+        <main className="flex-1 overflow-y-auto overflow-x-hidden p-6">
+          {renderPanel()}
+        </main>
+
+        {/* 历史记录抽屉 */}
+        <HistoryDrawer
+          open={historyOpen}
+          onClose={() => setHistoryOpen(false)}
+          onSelect={handleHistorySelect}
+        />
+
+        {/* 设置抽屉 */}
+        <Setting open={settingOpen} onClose={() => setSettingOpen(false)} />
+
+        {/* 赞赏引导弹窗 */}
+        <Modal
+          open={appreciateOpen}
+          onCancel={() => setAppreciateOpen(false)}
+          footer={null}
+          centered
+          width={340}
+        >
+          <div className="text-center py-2">
+            <div className="flex items-center justify-center gap-2.5 mb-4">
+              <HeartOutlined className="text-3xl text-[#ff4d4f] animate-heartbeat" />
+              <h3 className="m-0 text-xl font-semibold text-text">感谢您的使用！</h3>
+            </div>
+            <p className="text-sm text-text-secondary mb-5 leading-relaxed">
+              您已使用本插件 <strong className="text-primary font-semibold">{usageStats.totalUseCount}</strong> 次，
+              如果觉得好用，可以请作者喝杯咖啡 ☕
+            </p>
+            <img 
+              src="./appreciate.jpg" 
+              alt="赞赏作者" 
+              className="w-[180px] h-[180px] rounded-lg shadow-lg border border-border bg-white p-2"
+            />
+            <p className="text-xs text-text-tertiary mt-3 mb-0">微信扫码支持开发</p>
+            <Button 
+              type="primary" 
+              block 
+              onClick={() => setAppreciateOpen(false)}
+              className="mt-4"
+            >
+              继续使用
+            </Button>
+          </div>
+        </Modal>
+      </div>
+    </>
+  )
+}
+
+// 根组件
+function RootApp() {
+  const currentTheme = useTheme()
+  
+  useSyncThemeClass()
+  
+  return (
     <ConfigProvider
       theme={{
-        cssVar: true,
+        cssVar: { key: 'qrcode' },
         hashed: false,
         algorithm: ThemeMap[currentTheme],
         token: {
-          colorLink: '#1890ff',
-          colorLinkHover: '#1890ff',
-          colorLinkActive: '#1890ff',
+          colorPrimary: '#1677ff',
+          colorLink: '#1677ff',
+          borderRadius: 8,
         },
       }}
     >
-      <div className={`w-full h-full flex p-20px ${currentTheme}`}>
-        <div className="flex-1 flex flex-col">
-          <div className="h-160px relative">
-            <TextArea
-              autoFocus
-              value={text}
-              maxLength={1000}
-              className="!h-full"
-              style={{ resize: 'none' }}
-              onChange={onTextAreaChange}
-              placeholder="二维码内容"
-            />
-            {setting.isSaveHistory && (
-              <Button
-                style={{ display: text ? 'block' : 'none' }}
-                className="absolute bottom-4px right-0 z-9 opacity-40 hover:opacity-100"
-                type="text"
-                onClick={() => appendHistory(text)}
-              >
-                保存到记录
-              </Button>
-            )}
-          </div>
-          <div className="flex-1 flex  flex-col items-center justify-center mt-30px">
-            <Tooltip title="点击复制二维码" placement="top">
-              <div className="qrcode-container" onClick={onCopyQrcode}>
-                <QRCode
-                  size={3000}
-                  bordered={false}
-                  color={setting.qrCodeColor}
-                  bgColor={setting.qrCodeBgColor}
-                  value={text || 'wxp://f2f1T_ktr-V8a3MBhU6ICGoMp01a6LqJeBOmVGEFy8JE_8JauFt8Nh-3NP32iK3WEtYf'}
-                />
-              </div>
-            </Tooltip>
-            <div className="mt-10px">
-              <Button type="link" onClick={onCopyQrcode}>
-                复制二维码
-              </Button>
-              <Button type="link" onClick={onDownloadQrcode}>
-                下载二维码
-              </Button>
-            </div>
-          </div>
-        </div>
-        {setting.isSaveHistory && (
-          <historyItemContext.Provider value={setText}>
-            <Side />
-          </historyItemContext.Provider>
-        )}
-      </div>
-
-      <FloatButton.Group style={{ right: 30 }} icon={<MenuOutlined />}>
-        <FloatButton icon={<ScanOutlined />} tooltip="扫码" onClick={onScan} />
-        <FloatButton icon={<SettingOutlined />} tooltip="设置" onClick={() => setOpen(true)} />
-        <FloatButton icon={<WechatOutlined />} tooltip="联系作者/打赏" onClick={onShowContact} />
-      </FloatButton.Group>
-      <Setting open={open} onClose={() => setOpen(false)} />
+      <App>
+        <HomePage />
+      </App>
     </ConfigProvider>
   )
 }
 
-export { HomePage, historyItemContext }
+export { RootApp, HomePage }

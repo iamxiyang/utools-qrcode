@@ -2,7 +2,7 @@
   "main": "index.html",
   "logo": "logo.png",
   "development": {
-    "main": "http://127.0.0.1:5173/index.html",
+    "main": "http://localhost:5173/index.html",
     "preload": "preload.js"
   },
   "preload": "preload.js",
@@ -14,13 +14,16 @@
       "code": "qrcode",
       "explain": "生成二维码图片、识别图片中二维码",
       "cmds": [
-        "QRCode",
         "二维码",
+        "QRCode",
         "扫码",
-        "截图识别二维码",
+        "扫一扫",
+        "截图扫码",
+        "生成二维码",
+        "解析二维码",
         {
           "type": "regex",
-          "match": "/^https?:\\/\\/(?:(?:(?:25[0-5]|2[0-4]\\d|1\\d\\d|[1-9]\\d|\\d)(?:\\.(?:25[0-5]|2[0-4]\\d|1\\d\\d|[1-9]\\d|\\d)){3})|(?:(?:[a-z\\u00a1-\\uffff0-9]-*)*[a-z\\u00a1-\\uffff0-9]+)(?:\\.(?:[a-z\\u00a1-\\uffff0-9]-*)*[a-z\\u00a1-\\uffff0-9]+)*(?:\\.(?:[a-z\\u00a1-\\uffff]{2,}))\\.?)(?::\\d{2,5})?(?:[/?#][^\\s\"]*)?$/i",
+          "match": "/^https?:\\/\\/.+/i",
           "label": "生成二维码"
         },
         {
@@ -34,14 +37,17 @@
         {
           "type": "files",
           "fileType": "file",
-          "match": "/\\.(png|jpeg|jpg|bmp)$/i",
+          "match": "/\\.(png|jpe?g|bmp|gif|webp)$/i",
           "label": "识别图片中二维码",
           "minLength": 1,
           "maxLength": 1
         },
         {
           "type": "window",
-          "platform": ["win32", "darwin"],
+          "platform": [
+            "win32",
+            "darwin"
+          ],
           "match": {
             "app": [
               "chrome.exe",
@@ -53,13 +59,15 @@
               "msedge.exe",
               "Google Chrome.app",
               "Safari.app",
+              "Firefox.app",
               "Opera.app",
               "Vivaldi.app",
               "Brave Browser.app",
-              "Microsoft Edge.app"
+              "Microsoft Edge.app",
+              "Arc.app"
             ]
           },
-          "label": "当前网页地址二维码"
+          "label": "当前网页二维码"
         }
       ]
     }
