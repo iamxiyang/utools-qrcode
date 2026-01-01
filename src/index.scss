@@ -108,6 +108,15 @@ html.dark,
   padding: 0;
 }
 
+html {
+  // 确保整个应用使用优化的字体渲染
+  text-size-adjust: 100%;
+  -webkit-text-size-adjust: 100%;
+  // Windows 字体渲染优化
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+}
+
 html,
 body,
 #root {
@@ -117,14 +126,35 @@ body,
 }
 
 body {
-  font-family: -apple-system, BlinkMacSystemFont, 'SF Pro Display', 'Inter', 'Segoe UI',
-    'PingFang SC', 'Hiragino Sans GB', 'Microsoft YaHei', sans-serif;
+  // 优化后的字体栈：
+  // - macOS: 使用系统字体 -apple-system/SF Pro
+  // - Windows: 优先使用 Segoe UI Variable（Win11）或 Segoe UI，中文使用 Microsoft YaHei UI（比普通雅黑更适合界面）
+  // - 兜底: system-ui, sans-serif
+  font-family:
+    -apple-system,
+    BlinkMacSystemFont,
+    'Segoe UI Variable Display', // Windows 11 可变字体
+    'Segoe UI', // Windows 10 及更早版本
+    'Microsoft YaHei UI', // Windows 中文界面字体（比普通雅黑更清晰）
+    'PingFang SC', // macOS 中文字体
+    'Hiragino Sans GB', // macOS 备用中文字体
+    system-ui,
+    sans-serif;
+
+  // 字体渲染优化
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
+  text-rendering: optimizeLegibility; // 改善文字可读性
+  -webkit-text-size-adjust: 100%; // 防止移动端字体缩放
+  -ms-text-size-adjust: 100%;
+  font-feature-settings: 'kern' 1, 'liga' 1; // 启用字距调整和连字
+
+  // 基础样式
   background: var(--color-bg);
   color: var(--color-text);
   font-size: 14px;
-  line-height: 1.5;
+  line-height: 1.5715; // Ant Design 标准行高，更舒适
+  letter-spacing: 0.01em; // 轻微字间距，提升可读性
   transition: background-color var(--transition-normal), color var(--transition-normal);
 }
 
@@ -487,5 +517,83 @@ body {
       background: transparent;
       border-color: var(--color-border);
     }
+  }
+}
+
+/* ========================================
+   历史记录搜索框样式
+   ======================================== */
+.history-search-input {
+  border-radius: var(--radius-full) !important;
+  background: var(--color-bg-tertiary) !important;
+  border: 1px solid transparent !important;
+  padding: 8px 16px !important;
+  transition: all var(--transition-normal) !important;
+
+  .ant-input {
+    background: transparent !important;
+    font-size: 13px;
+
+    &::placeholder {
+      color: var(--color-text-tertiary);
+      transition: color var(--transition-fast);
+    }
+  }
+
+  .ant-input-prefix {
+    margin-inline-end: 10px;
+
+    .anticon {
+      font-size: 14px;
+      transition: color var(--transition-fast);
+    }
+  }
+
+  .ant-input-clear-icon {
+    font-size: 12px;
+    color: var(--color-text-tertiary);
+    transition: color var(--transition-fast);
+
+    &:hover {
+      color: var(--color-text);
+    }
+  }
+
+  &:hover {
+    background: var(--color-bg-secondary) !important;
+    border-color: var(--color-border) !important;
+
+    .ant-input-prefix .anticon {
+      color: var(--color-text-secondary);
+    }
+  }
+
+  &:focus-within,
+  &.ant-input-affix-wrapper-focused {
+    background: var(--color-bg-secondary) !important;
+    border-color: var(--color-primary) !important;
+    box-shadow: 0 0 0 3px var(--color-primary-light), var(--shadow-sm) !important;
+
+    .ant-input-prefix .anticon {
+      color: var(--color-primary);
+    }
+
+    .ant-input::placeholder {
+      color: var(--color-text-secondary);
+    }
+  }
+}
+
+// 暗色模式搜索框
+.dark .history-search-input {
+  background: var(--color-bg-tertiary) !important;
+
+  &:hover {
+    background: var(--color-bg-elevated) !important;
+  }
+
+  &:focus-within,
+  &.ant-input-affix-wrapper-focused {
+    background: var(--color-bg-elevated) !important;
   }
 }

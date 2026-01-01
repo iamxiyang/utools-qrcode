@@ -210,12 +210,12 @@ export const ParseHistoryList: React.FC<ParseHistoryListProps> = ({
       {allParseHistoryCount > 3 && (
         <div className="mb-3">
           <Input
+            className="history-search-input"
             placeholder="搜索内容或备注，支持正则..."
             prefix={<SearchOutlined className="text-text-tertiary" />}
             value={searchText}
             onChange={(e) => setSearchText(e.target.value)}
             allowClear
-            size="small"
           />
         </div>
       )}
