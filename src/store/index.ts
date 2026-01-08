@@ -16,7 +16,7 @@ const initialSetting: Setting = {
   qrCodeCornerStyle: 'square',
   qrCodeMargin: 10,
   qrCodeLogoSize: 0.3,
-  defaultMode: 'parse',
+
   defaultDownloadFormat: 'png',
 }
 
@@ -107,7 +107,7 @@ const migrateOldHistory = (): History[] => {
 }
 
 const state = proxy<State>({
-  mode: storedSetting.defaultMode || 'parse',
+  mode: 'parse',
   setting: {
     ...initialSetting,
     ...storedSetting,

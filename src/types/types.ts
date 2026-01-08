@@ -39,8 +39,7 @@ export interface Setting {
   qrCodeMargin: number
   // Logo 大小比例 (0.1 - 0.5)
   qrCodeLogoSize: number
-  // 默认启动模式
-  defaultMode: AppMode
+
   // 默认下载格式
   defaultDownloadFormat: 'png' | 'svg'
 }

@@ -112,28 +112,13 @@ export const Setting = (props: SettingProps) => {
         </div>
       </div>
 
+
+
       <div className="mb-6">
         <h4 className="text-sm font-semibold text-text-tertiary uppercase tracking-wide mb-4">
-          默认行为
+          二维码样式
         </h4>
         
-        <div className="flex justify-between items-center py-3 border-b border-border-light">
-          <div className="flex flex-col gap-0.5">
-            <span className="text-sm font-medium text-text">默认启动模式</span>
-            <span className="text-xs text-text-tertiary">无内容进入时显示的面板</span>
-          </div>
-          <Radio.Group 
-            value={setting.defaultMode}
-            onChange={(e) => state.setting.defaultMode = e.target.value}
-            size="small"
-            optionType="button"
-          >
-            <Radio.Button value="parse">解析</Radio.Button>
-            <Radio.Button value="generate">生成</Radio.Button>
-            <Radio.Button value="batch">批量</Radio.Button>
-          </Radio.Group>
-        </div>
-
         <div className="flex justify-between items-center py-3 border-b border-border-light">
           <div className="flex flex-col gap-0.5">
             <span className="text-sm font-medium text-text">默认下载格式</span>
@@ -148,13 +133,7 @@ export const Setting = (props: SettingProps) => {
             <Radio.Button value="svg">SVG</Radio.Button>
           </Radio.Group>
         </div>
-      </div>
 
-      <div className="mb-6">
-        <h4 className="text-sm font-semibold text-text-tertiary uppercase tracking-wide mb-4">
-          二维码样式
-        </h4>
-        
         <div className="flex justify-between items-center py-3 border-b border-border-light">
           <div className="flex flex-col gap-0.5">
             <span className="text-sm font-medium text-text">前景颜色</span>

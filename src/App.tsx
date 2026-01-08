@@ -59,70 +59,66 @@ function HomePage() {
   // 处理 uTools 入口
   useEffect(() => {
     utools.onPluginEnter(({ code, type, payload }) => {
-      // URL 正则匹配或选中文本 -> 生成二维码
-      if (type === 'regex' || type === 'over') {
-        state.mode = 'generate'
-        // 判断是否是 URL
-        if (/^https?:\/\//i.test(payload)) {
-          state.generateForm.protocol = 'url'
-          state.generateForm.url = payload
-        } else {
-          state.generateForm.protocol = 'text'
-          state.generateForm.text = payload
-        }
-        return
-      }
-      
-      // 浏览器窗口 -> 获取当前网页 URL 生成二维码
-      if (type === 'window') {
-        state.mode = 'generate'
-        window.utools.readCurrentBrowserUrl().then(url => {
-          if (url) {
-            state.generateForm.protocol = 'url'
-            state.generateForm.url = url
+      // 根据 feature code 决定模式
+      switch (code) {
+        case 'generate':
+          state.mode = 'generate'
+          // URL 正则匹配或选中文本
+          if (type === 'regex' || type === 'over') {
+            if (/^https?:\/\//i.test(payload)) {
+              state.generateForm.protocol = 'url'
+              state.generateForm.url = payload
+            } else {
+              state.generateForm.protocol = 'text'
+              state.generateForm.text = payload
+            }
           }
-        })
-        return
+          // 浏览器窗口
+          else if (type === 'window') {
+            window.utools.readCurrentBrowserUrl().then(url => {
+              if (url) {
+                state.generateForm.protocol = 'url'
+                state.generateForm.url = url
+              }
+            })
+          }
+          break
+
+        case 'parse':
+          state.mode = 'parse'
+          // 图片文件
+          if (type === 'files') {
+            window.preload?.fileToBase64(payload[0].path).then((base64: string) => {
+              setPendingParseImage(base64)
+            })
+          }
+          // 剪贴板图片
+          else if (type === 'img') {
+            setPendingParseImage(payload)
+          }
+          // 关键词
+          else {
+            const keyword = typeof payload === 'string' ? payload.toLowerCase() : ''
+            // 只有明确的扫码/截图指令才触发截图
+            if (keyword.includes('扫') || keyword.includes('截图')) {
+              setTimeout(() => {
+                window.utools?.screenCapture((base64: string) => {
+                  setPendingParseImage(base64)
+                })
+              }, 100)
+            }
+          }
+          break
+
+        case 'batch':
+          state.mode = 'batch'
+          break
+
+        case 'default':
+        default:
+          state.mode = 'parse'
+          break
       }
-      
-      // 图片文件 -> 解析二维码
-      if (type === 'files') {
-        state.mode = 'parse'
-        window.preload?.fileToBase64(payload[0].path).then((base64: string) => {
-          setPendingParseImage(base64)
-        })
-        return
-      }
-      
-      // 剪贴板图片 -> 解析二维码
-      if (type === 'img') {
-        state.mode = 'parse'
-        setPendingParseImage(payload)
-        return
-      }
-      
-      // 关键词入口处理
-      const keyword = typeof payload === 'string' ? payload.toLowerCase() : ''
-      
-      // 扫码/截图相关关键词 -> 触发截图扫码
-      if (keyword.includes('扫') || keyword.includes('截图') || keyword.includes('解析')) {
-        state.mode = 'parse'
-        setTimeout(() => {
-          window.utools?.screenCapture((base64: string) => {
-            setPendingParseImage(base64)
-          })
-        }, 100)
-        return
-      }
-      
-      // 生成相关关键词 -> 进入生成模式
-      if (keyword.includes('生成')) {
-        state.mode = 'generate'
-        return
-      }
-      
-      // 默认：根据设置的默认模式
-      // state.mode 已经在 store 初始化时根据 setting.defaultMode 设置
     })
   }, [])
 

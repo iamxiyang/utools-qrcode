@@ -11,16 +11,18 @@
   },
   "features": [
     {
-      "code": "qrcode",
-      "explain": "生成二维码图片、识别图片中二维码",
+      "code": "default",
+      "explain": "二维码工具箱",
       "cmds": [
         "二维码",
-        "QRCode",
-        "扫码",
-        "扫一扫",
-        "截图扫码",
+        "QRCode"
+      ]
+    },
+    {
+      "code": "generate",
+      "explain": "生成二维码",
+      "cmds": [
         "生成二维码",
-        "解析二维码",
         {
           "type": "regex",
           "match": "/^https?:\\/\\/.+/i",
@@ -29,18 +31,6 @@
         {
           "type": "over",
           "label": "生成二维码"
-        },
-        {
-          "type": "img",
-          "label": "识别图片中二维码"
-        },
-        {
-          "type": "files",
-          "fileType": "file",
-          "match": "/\\.(png|jpe?g|bmp|gif|webp)$/i",
-          "label": "识别图片中二维码",
-          "minLength": 1,
-          "maxLength": 1
         },
         {
           "type": "window",
@@ -69,6 +59,35 @@
           },
           "label": "当前网页二维码"
         }
+      ]
+    },
+    {
+      "code": "parse",
+      "explain": "识别图片中二维码",
+      "cmds": [
+        "扫码",
+        "扫一扫",
+        "截图扫码",
+        "解析二维码",
+        {
+          "type": "img",
+          "label": "识别图片中二维码"
+        },
+        {
+          "type": "files",
+          "fileType": "file",
+          "match": "/\\.(png|jpe?g|bmp|gif|webp)$/i",
+          "label": "识别图片中二维码",
+          "minLength": 1,
+          "maxLength": 1
+        }
+      ]
+    },
+    {
+      "code": "batch",
+      "explain": "批量生成二维码",
+      "cmds": [
+        "批量生成二维码"
       ]
     }
   ]
