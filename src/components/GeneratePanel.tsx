@@ -13,6 +13,7 @@ import { useProxy } from 'valtio/utils'
 import { useDebounce } from '../hooks'
 import { QRCodeProtocol, WifiEncryption, DotStyle, CornerStyle } from '../types/types'
 import { formatWifi, formatPhone, formatSms, formatEmail, copyImage } from '../utils'
+import { encodeData } from '../utils/qrcode'
 import { SyncedInput, SyncedTextArea } from './SyncedInputs'
 
 
@@ -128,7 +129,7 @@ export const GeneratePanel: React.FC = () => {
       width: previewSize,
       height: previewSize,
       margin: debouncedMargin,
-      data: debouncedQrCodeContent || 'https://example.com',
+      data: encodeData(debouncedQrCodeContent || 'https://example.com'),
       dotsOptions: {
         color: debouncedColor,
         type: debouncedDotStyle as any,
@@ -184,7 +185,7 @@ export const GeneratePanel: React.FC = () => {
       width: setting.qrCodeSize,
       height: setting.qrCodeSize,
       margin: setting.qrCodeMargin,
-      data,
+      data: encodeData(data),
       dotsOptions: {
         color: setting.qrCodeColor,
         type: setting.qrCodeDotStyle as any,

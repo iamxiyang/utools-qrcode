@@ -12,6 +12,7 @@ import {
 } from '@ant-design/icons'
 import QRCodeStyling from 'qr-code-styling'
 import { copyText, detectQRCodeType, openUrl, decodeContent, parseContentToFormData } from '../utils'
+import { encodeData } from '../utils/qrcode'
 import { state, setPendingParseImage } from '../store'
 import { useProxy } from 'valtio/utils'
 import { ParseHistoryList } from './ParseHistoryList'
@@ -59,7 +60,7 @@ export const ParseResult: React.FC<ParseResultProps> = ({
       width: 100,
       height: 100,
       margin: 4,
-      data: editableText,
+      data: encodeData(editableText),
       dotsOptions: {
         color: '#000000',
         type: 'square' as const,

@@ -37,7 +37,7 @@ export const createQRCodeOptions = (options: QRCodeOptions) => {
     width: size,
     height: size,
     margin,
-    data,
+    data: encodeData(data),
     dotsOptions: {
       color,
       type: dotStyle as any,
@@ -63,6 +63,23 @@ export const createQRCodeOptions = (options: QRCodeOptions) => {
     qrOptions: {
       errorCorrectionLevel: errorLevel,
     },
+  }
+}
+
+/**
+ * Encode data for QR Code (Fix Chinese character issues)
+ */
+export const encodeData = (data: string): string => {
+  try {
+    const bytes = new TextEncoder().encode(data)
+    // Reduce large array spread issues by processing in chunks or loop
+    let binary = ''
+    for (let i = 0; i < bytes.length; i++) {
+      binary += String.fromCharCode(bytes[i])
+    }
+    return binary
+  } catch (e) {
+    return data
   }
 }
 
