@@ -52,6 +52,12 @@ export const ParseResult: React.FC<ParseResultProps> = ({
   const canFormat = decodedInfo.formatted !== decodedInfo.decoded && 
                     decodedInfo.type !== 'text'
 
+  // 当新的解析结果进入时，重置编辑态与格式化开关
+  useEffect(() => {
+    setEditableText(text)
+    setShowFormatted(true)
+  }, [text])
+
   // 生成二维码预览（始终生成，用于修改时显示）
   useEffect(() => {
     if (!qrCodeRef.current || !editableText) return
