@@ -8,19 +8,20 @@ import {
   LinkOutlined,
   ScanOutlined,
   UploadOutlined,
+  VideoCameraOutlined,
   DownOutlined,
 } from '@ant-design/icons'
 import QRCodeStyling from 'qr-code-styling'
 import { copyText, detectQRCodeType, openUrl, decodeContent, parseContentToFormData } from '../utils'
 import { encodeData } from '../utils/qrcode'
-import { state, setPendingParseImage } from '../store'
+import { state, setPendingParseImage, setPendingParseCamera } from '../store'
 import { useProxy } from 'valtio/utils'
 import { ParseHistoryList } from './ParseHistoryList'
 import { History } from '../types/types'
 
 const { TextArea } = Input
 
-type ParseMethod = 'screenshot' | 'file'
+type ParseMethod = 'screenshot' | 'file' | 'camera'
 
 interface ParseResultProps {
   text: string
@@ -129,6 +130,11 @@ export const ParseResult: React.FC<ParseResultProps> = ({
     fileInputRef.current?.click()
   }, [])
 
+  const handleCameraParse = useCallback(() => {
+    lastParseMethodRef.current = 'camera'
+    setPendingParseCamera(true)
+  }, [])
+
   const handleFileChange = useCallback((e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0]
     if (file && file.type.startsWith('image/')) {
@@ -145,10 +151,14 @@ export const ParseResult: React.FC<ParseResultProps> = ({
   const handleContinueParse = useCallback(() => {
     if (lastParseMethodRef.current === 'file') {
       handleSelectFile()
+    } else if (lastParseMethodRef.current === 'camera') {
+      handleCameraParse()
     } else {
       handleScreenshot()
     }
-  }, [handleSelectFile, handleScreenshot])
+  }, [handleCameraParse, handleSelectFile, handleScreenshot])
+
+  const isMac = /mac/i.test(navigator.userAgent)
 
   const parseMenuItems: MenuProps['items'] = [
     {
@@ -163,6 +173,12 @@ export const ParseResult: React.FC<ParseResultProps> = ({
       icon: <UploadOutlined />,
       onClick: handleSelectFile,
     },
+    ...(!isMac ? [{
+      key: 'camera',
+      label: '摄像头扫码',
+      icon: <VideoCameraOutlined />,
+      onClick: handleCameraParse,
+    }] : []),
   ]
 
   const handleHistorySelect = useCallback((item: History) => {

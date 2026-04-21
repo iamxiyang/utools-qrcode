@@ -69,6 +69,8 @@ type State = {
   pendingParseImage: string | null
   // 待加载的历史文本 - 用于从历史记录加载到解析结果
   pendingParseText: string | null
+  // 待启动摄像头扫码 - 用于跨组件触发摄像头扫描
+  pendingParseCamera: boolean
 }
 
 // --- 性能优化：预读取存储数据 ---
@@ -121,6 +123,7 @@ const state = proxy<State>({
   usageStats: storedUsageStats,
   pendingParseImage: null,
   pendingParseText: null,
+  pendingParseCamera: false,
 })
 
 // --- 性能优化：防抖持久化 ---
@@ -182,6 +185,16 @@ export const setPendingParseText = (text: string | null) => {
 // 辅助函数：清除待加载文本
 export const clearPendingParseText = () => {
   state.pendingParseText = null
+}
+
+// 辅助函数：设置待启动摄像头扫码
+export const setPendingParseCamera = (pending: boolean) => {
+  state.pendingParseCamera = pending
+}
+
+// 辅助函数：清除待启动摄像头扫码
+export const clearPendingParseCamera = () => {
+  state.pendingParseCamera = false
 }
 
 // 辅助函数：添加历史记录

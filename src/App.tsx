@@ -10,7 +10,14 @@ import {
   HeartOutlined,
 } from '@ant-design/icons'
 import { useTheme, useSyncThemeClass } from './hooks'
-import { state, shouldShowAppreciate, markAppreciateShown, setPendingParseImage, setPendingParseText } from './store'
+import {
+  state,
+  shouldShowAppreciate,
+  markAppreciateShown,
+  setPendingParseImage,
+  setPendingParseText,
+  setPendingParseCamera,
+} from './store'
 import { useProxy } from 'valtio/utils'
 import { AppMode, History } from './types/types'
 import { ParsePanel } from './components/ParsePanel'
@@ -99,8 +106,14 @@ function HomePage() {
           // 关键词
           else {
             const keyword = typeof payload === 'string' ? payload.toLowerCase() : ''
+            // 明确提到摄像头/相机时，优先触发摄像头扫码
+            if (keyword.includes('摄像头') || keyword.includes('相机') || keyword.includes('camera')) {
+              setTimeout(() => {
+                setPendingParseCamera(true)
+              }, 100)
+            }
             // 只有明确的扫码/截图指令才触发截图
-            if (keyword.includes('扫') || keyword.includes('截图')) {
+            else if (keyword.includes('扫') || keyword.includes('截图')) {
               setTimeout(() => {
                 window.utools?.screenCapture((base64: string) => {
                   setPendingParseImage(base64)
