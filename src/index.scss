@@ -109,12 +109,19 @@ html.dark,
 }
 
 html {
-  // 确保整个应用使用优化的字体渲染
   text-size-adjust: 100%;
   -webkit-text-size-adjust: 100%;
-  // Windows 字体渲染优化
+}
+
+// macOS: 灰度抗锯齿，字体看起来更细腻
+html.platform-mac {
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
+}
+
+// Windows: 使用亚像素渲染（ClearType），字体更清晰饱满
+html.platform-win {
+  -webkit-font-smoothing: subpixel-antialiased;
 }
 
 html,
@@ -126,36 +133,34 @@ body,
 }
 
 body {
-  // 优化后的字体栈：
-  // - macOS: 使用系统字体 -apple-system/SF Pro
-  // - Windows: 优先使用 Segoe UI Variable（Win11）或 Segoe UI，中文使用 Microsoft YaHei UI（比普通雅黑更适合界面）
-  // - 兜底: system-ui, sans-serif
   font-family:
     -apple-system,
     BlinkMacSystemFont,
-    'Segoe UI Variable Display', // Windows 11 可变字体
-    'Segoe UI', // Windows 10 及更早版本
-    'Microsoft YaHei UI', // Windows 中文界面字体（比普通雅黑更清晰）
-    'PingFang SC', // macOS 中文字体
-    'Hiragino Sans GB', // macOS 备用中文字体
+    'Segoe UI Variable Display',
+    'Segoe UI',
+    'Microsoft YaHei UI',
+    'PingFang SC',
+    'Hiragino Sans GB',
     system-ui,
     sans-serif;
 
-  // 字体渲染优化
-  -webkit-font-smoothing: antialiased;
-  -moz-osx-font-smoothing: grayscale;
-  text-rendering: optimizeLegibility; // 改善文字可读性
-  -webkit-text-size-adjust: 100%; // 防止移动端字体缩放
+  text-rendering: optimizeLegibility;
+  -webkit-text-size-adjust: 100%;
   -ms-text-size-adjust: 100%;
-  font-feature-settings: 'kern' 1, 'liga' 1; // 启用字距调整和连字
+  font-feature-settings: 'kern' 1, 'liga' 1;
 
-  // 基础样式
   background: var(--color-bg);
   color: var(--color-text);
   font-size: 14px;
-  line-height: 1.5715; // Ant Design 标准行高，更舒适
-  letter-spacing: 0.01em; // 轻微字间距，提升可读性
+  line-height: 1.5715;
+  letter-spacing: 0.01em;
   transition: background-color var(--transition-normal), color var(--transition-normal);
+}
+
+// Windows 专用字体调整
+html.platform-win body {
+  letter-spacing: normal;
+  font-feature-settings: 'kern' 1;
 }
 
 ::selection {
