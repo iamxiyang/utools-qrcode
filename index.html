@@ -7,14 +7,6 @@
     <script>
       (function() {
         try {
-          // 平台检测，用于字体渲染优化
-          var ua = navigator.userAgent.toLowerCase();
-          if (ua.indexOf('win') > -1) {
-            document.documentElement.classList.add('platform-win');
-          } else if (ua.indexOf('mac') > -1) {
-            document.documentElement.classList.add('platform-mac');
-          }
-          // utools 环境下使用 utools.isDarkColors()
           if (typeof utools !== 'undefined' && utools.isDarkColors && utools.isDarkColors()) {
             document.documentElement.classList.add('dark');
           } else if (window.matchMedia && window.matchMedia('(prefers-color-scheme: dark)').matches) {

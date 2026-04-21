@@ -35,33 +35,34 @@ const ParseHistoryItem = React.memo<{
       trigger={['contextMenu']}
     >
       <div
-        className="group flex items-center gap-3 px-4 py-3 bg-bg-secondary rounded-md cursor-pointer transition-all border border-border-light hover:bg-primary-light hover:border-primary/30"
+        className="group flex items-center gap-3 px-4 py-3 bg-bg-secondary rounded-xl cursor-pointer transition-all duration-300 hover:bg-primary-light hover:shadow-sm"
         onClick={() => onSelect(item)}
       >
         <span className="text-sm opacity-40 shrink-0">{typeInfo.icon}</span>
         <div className="flex-1 min-w-0 flex flex-col gap-0.5">
           {item.remark ? (
             <>
-              <span className="text-sm text-text font-medium overflow-hidden text-ellipsis whitespace-nowrap">
+              <span className="text-sm text-text font-semibold overflow-hidden text-ellipsis whitespace-nowrap">
                 {truncateText(item.remark, 40)}
               </span>
-              <span className="text-sm text-text-secondary overflow-hidden text-ellipsis whitespace-nowrap font-mono">
+              <span className="text-sm text-text-secondary overflow-hidden text-ellipsis whitespace-nowrap font-medium">
                 {truncateText(item.text, 60)}
               </span>
             </>
           ) : (
-            <span className="text-sm text-text overflow-hidden text-ellipsis whitespace-nowrap font-mono">
+            <span className="text-sm text-text overflow-hidden text-ellipsis whitespace-nowrap font-medium">
               {truncateText(item.text, 80)}
             </span>
           )}
         </div>
-        <div className="flex gap-0.5 opacity-0 transition-opacity shrink-0 group-hover:opacity-100">
+        <div className="flex gap-0.5 opacity-0 transition-opacity duration-200 shrink-0 group-hover:opacity-100">
           <Tooltip title="复制">
             <Button
               type="text"
               size="small"
               icon={<CopyOutlined />}
               onClick={(e) => onCopy(item.text, e)}
+              className="!w-7 !h-7 !min-w-0 rounded-md"
             />
           </Tooltip>
           <Tooltip title="删除">
@@ -71,6 +72,7 @@ const ParseHistoryItem = React.memo<{
               danger
               icon={<DeleteOutlined />}
               onClick={(e) => onDelete(item.id, e)}
+              className="!w-7 !h-7 !min-w-0 rounded-md"
             />
           </Tooltip>
         </div>
@@ -196,12 +198,15 @@ export const ParseHistoryList: React.FC<ParseHistoryListProps> = ({
     return null
   }
 
-  const allParseHistoryCount = history.filter(item => item.type === 'parse').length
+  const allParseHistoryCount = useMemo(
+    () => history.filter(item => item.type === 'parse').length,
+    [history]
+  )
 
   return (
-    <div className="mt-8 pt-6 border-t border-border-light  mx-auto">
+    <div className="mt-8 pt-6 border-t border-border-light mx-auto max-w-[800px]">
       <div className="flex items-center gap-2 mb-4">
-        <span className="text-sm font-semibold text-text">{title}</span>
+        <span className="text-sm font-bold text-text">{title}</span>
         <span className="text-xs text-text-tertiary">
           {searchText ? `${parseHistory.length} / ` : ''}{allParseHistoryCount} 条
         </span>
@@ -221,8 +226,9 @@ export const ParseHistoryList: React.FC<ParseHistoryListProps> = ({
       )}
 
       {parseHistory.length === 0 ? (
-        <div className="text-center py-6 text-text-tertiary text-sm">
-          {allParseHistoryCount === 0 ? '暂无解析历史' : '无匹配结果'}
+        <div className="flex flex-col items-center justify-center py-8 text-text-tertiary text-sm gap-2">
+          <QrcodeOutlined className="text-2xl opacity-30" />
+          <span>{allParseHistoryCount === 0 ? '暂无解析历史' : '无匹配结果'}</span>
         </div>
       ) : (
         <div className="flex flex-col gap-1">

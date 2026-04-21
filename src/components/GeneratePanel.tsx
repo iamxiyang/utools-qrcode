@@ -6,6 +6,7 @@ import {
   DownloadOutlined, 
   PictureOutlined,
   DownOutlined,
+  QrcodeOutlined,
 } from '@ant-design/icons'
 import QRCodeStyling from 'qr-code-styling'
 import { state, addHistory, saveLogo, deleteLogo, getLogoBase64 } from '../store'
@@ -13,7 +14,7 @@ import { useProxy } from 'valtio/utils'
 import { useDebounce } from '../hooks'
 import { QRCodeProtocol, WifiEncryption, DotStyle, CornerStyle } from '../types/types'
 import { formatWifi, formatPhone, formatSms, formatEmail, copyImage } from '../utils'
-import { encodeData } from '../utils/qrcode'
+import { createQRCodeOptions } from '../utils/qrcode'
 import { SyncedInput, SyncedTextArea } from './SyncedInputs'
 
 
@@ -105,10 +106,7 @@ export const GeneratePanel: React.FC = () => {
   
   const debouncedColor = useDebounce(setting.qrCodeColor, 200)
   const debouncedBgColor = useDebounce(setting.qrCodeBgColor, 200)
-  const debouncedDotStyle = useDebounce(setting.qrCodeDotStyle, 200)
-  const debouncedCornerStyle = useDebounce(setting.qrCodeCornerStyle, 200)
   const debouncedMargin = useDebounce(setting.qrCodeMargin, 200)
-  const debouncedErrorLevel = useDebounce(setting.qrCodeErrorLevel, 200)
   const debouncedLogoSize = useDebounce(setting.qrCodeLogoSize, 200)
   
   const currentLogoData = useMemo(() => {
@@ -122,40 +120,18 @@ export const GeneratePanel: React.FC = () => {
   useEffect(() => {
     if (!qrCodeRef.current) return
 
-    const previewSize = 560
-    const logoMargin = 10
-    
-    const options = {
-      width: previewSize,
-      height: previewSize,
+    const options = createQRCodeOptions({
+      data: debouncedQrCodeContent || 'https://example.com',
+      size: 560,
       margin: debouncedMargin,
-      data: encodeData(debouncedQrCodeContent || 'https://example.com'),
-      dotsOptions: {
-        color: debouncedColor,
-        type: debouncedDotStyle as any,
-      },
-      cornersSquareOptions: {
-        color: debouncedColor,
-        type: debouncedCornerStyle as any,
-      },
-      cornersDotOptions: {
-        color: debouncedColor,
-        type: debouncedCornerStyle === 'dot' ? 'dot' : undefined as any,
-      },
-      backgroundOptions: {
-        color: debouncedBgColor,
-      },
-      imageOptions: {
-        crossOrigin: 'anonymous',
-        margin: logoMargin,
-        imageSize: debouncedLogoSize,
-        hideBackgroundDots: true,
-      },
-      image: currentLogoData || undefined,
-      qrOptions: {
-        errorCorrectionLevel: debouncedErrorLevel,
-      },
-    }
+      color: debouncedColor,
+      bgColor: debouncedBgColor,
+      dotStyle: setting.qrCodeDotStyle,
+      cornerStyle: setting.qrCodeCornerStyle,
+      errorLevel: setting.qrCodeErrorLevel,
+      logoUrl: currentLogoData || undefined,
+      logoSize: debouncedLogoSize,
+    })
 
     if (!qrCodeInstance.current) {
       qrCodeInstance.current = new QRCodeStyling(options)
@@ -164,54 +140,21 @@ export const GeneratePanel: React.FC = () => {
     } else {
       qrCodeInstance.current.update(options)
     }
-  }, [debouncedQrCodeContent, debouncedColor, debouncedBgColor, debouncedDotStyle, debouncedCornerStyle, debouncedMargin, debouncedErrorLevel, debouncedLogoSize, currentLogoData])
-  
-  const isFirstRender = useRef(true)
-  useEffect(() => {
-    if (setting.isAutoCopyQRCode && qrCodeContent && isFirstRender.current) {
-      const timer = setTimeout(() => {
-        handleCopy()
-        isFirstRender.current = false
-      }, 500)
-      return () => clearTimeout(timer)
-    }
-    isFirstRender.current = false
-  }, [qrCodeContent, setting.isAutoCopyQRCode])
+  }, [debouncedQrCodeContent, debouncedColor, debouncedBgColor, setting.qrCodeDotStyle, setting.qrCodeCornerStyle, debouncedMargin, setting.qrCodeErrorLevel, debouncedLogoSize, currentLogoData])
 
   const createExportQRCode = useCallback((data: string) => {
-    const logoMargin = Math.max(4, Math.floor(setting.qrCodeSize / 40))
-    
-    return new QRCodeStyling({
-      width: setting.qrCodeSize,
-      height: setting.qrCodeSize,
+    return new QRCodeStyling(createQRCodeOptions({
+      data,
+      size: setting.qrCodeSize,
       margin: setting.qrCodeMargin,
-      data: encodeData(data),
-      dotsOptions: {
-        color: setting.qrCodeColor,
-        type: setting.qrCodeDotStyle as any,
-      },
-      cornersSquareOptions: {
-        color: setting.qrCodeColor,
-        type: setting.qrCodeCornerStyle as any,
-      },
-      cornersDotOptions: {
-        color: setting.qrCodeColor,
-        type: setting.qrCodeCornerStyle === 'dot' ? 'dot' : undefined as any,
-      },
-      backgroundOptions: {
-        color: setting.qrCodeBgColor,
-      },
-      imageOptions: {
-        crossOrigin: 'anonymous',
-        margin: logoMargin,
-        imageSize: setting.qrCodeLogoSize,
-        hideBackgroundDots: true,
-      },
-      image: logoPreview || form.logoUrl || undefined,
-      qrOptions: {
-        errorCorrectionLevel: setting.qrCodeErrorLevel,
-      },
-    })
+      color: setting.qrCodeColor,
+      bgColor: setting.qrCodeBgColor,
+      dotStyle: setting.qrCodeDotStyle,
+      cornerStyle: setting.qrCodeCornerStyle,
+      errorLevel: setting.qrCodeErrorLevel,
+      logoUrl: logoPreview || form.logoUrl || undefined,
+      logoSize: setting.qrCodeLogoSize,
+    }))
   }, [setting, logoPreview, form.logoUrl])
 
   const handleCopy = useCallback(async () => {
@@ -233,6 +176,17 @@ export const GeneratePanel: React.FC = () => {
       message.error('复制失败')
     }
   }, [message, qrCodeContent, form.protocol, createExportQRCode])
+
+  const isFirstRender = useRef(true)
+  useEffect(() => {
+    if (isFirstRender.current) {
+      isFirstRender.current = false
+      if (setting.isAutoCopyQRCode && qrCodeContent) {
+        const timer = setTimeout(() => handleCopy(), 500)
+        return () => clearTimeout(timer)
+      }
+    }
+  }, [qrCodeContent, setting.isAutoCopyQRCode, handleCopy])
 
 
   const handleDownload = useCallback(async (format: 'png' | 'svg') => {
@@ -494,20 +448,26 @@ export const GeneratePanel: React.FC = () => {
           </Form.Item>
           <div className="flex gap-6 mb-4">
             <Form.Item label="前景色" className="flex-1 mb-0">
-              <input
-                type="color"
-                value={setting.qrCodeColor}
-                onChange={(e) => (state.setting.qrCodeColor = e.target.value)}
-                className="w-12 h-12 p-1 border-2 border-border rounded-md cursor-pointer bg-transparent transition-colors hover:border-primary"
-              />
+              <div className="flex items-center gap-2">
+                <input
+                  type="color"
+                  value={setting.qrCodeColor}
+                  onChange={(e) => (state.setting.qrCodeColor = e.target.value)}
+                  className="w-10 h-10 p-1 border-2 border-border rounded-lg cursor-pointer bg-transparent transition-all hover:border-primary hover:shadow-sm active:scale-95"
+                />
+                <span className="text-xs text-text-tertiary font-mono">{setting.qrCodeColor}</span>
+              </div>
             </Form.Item>
             <Form.Item label="背景色" className="flex-1 mb-0">
-              <input
-                type="color"
-                value={setting.qrCodeBgColor}
-                onChange={(e) => (state.setting.qrCodeBgColor = e.target.value)}
-                className="w-12 h-12 p-1 border-2 border-border rounded-md cursor-pointer bg-transparent transition-colors hover:border-primary"
-              />
+              <div className="flex items-center gap-2">
+                <input
+                  type="color"
+                  value={setting.qrCodeBgColor}
+                  onChange={(e) => (state.setting.qrCodeBgColor = e.target.value)}
+                  className="w-10 h-10 p-1 border-2 border-border rounded-lg cursor-pointer bg-transparent transition-all hover:border-primary hover:shadow-sm active:scale-95"
+                />
+                <span className="text-xs text-text-tertiary font-mono">{setting.qrCodeBgColor}</span>
+              </div>
             </Form.Item>
           </div>
           <Form.Item label="容错级别">
@@ -651,19 +611,19 @@ export const GeneratePanel: React.FC = () => {
     <div className="max-w-[900px] mx-auto">
       {/* 协议选择 */}
       <div className="mb-7">
-        <div className="flex gap-1.5 flex-wrap">
+        <div className="flex gap-2 flex-wrap">
           {protocolOptions.map((opt) => (
             <div
               key={opt.key}
-              className={`flex items-center gap-1.5 px-4 py-2 rounded-md cursor-pointer transition-all border ${
+              className={`flex items-center gap-2 px-4 py-2.5 rounded-xl cursor-pointer transition-all duration-300 ${
                 form.protocol === opt.key
-                  ? 'bg-primary-light border-primary'
-                  : 'bg-bg-secondary border-border-light hover:border-primary/40 hover:bg-primary-light'
+                  ? 'bg-primary text-white shadow-md scale-[1.02]'
+                  : 'bg-bg-secondary hover:bg-bg-elevated hover:shadow-sm'
               }`}
               onClick={() => handleProtocolChange(opt.key)}
             >
-              <span className="text-base">{opt.icon}</span>
-              <span className={`text-base font-medium ${form.protocol === opt.key ? 'text-primary font-semibold' : 'text-text'}`}>
+              <span className="text-lg leading-none">{opt.icon}</span>
+              <span className={`text-sm font-semibold ${form.protocol === opt.key ? 'text-white' : 'text-text'}`}>
                 {opt.label}
               </span>
             </div>
@@ -674,17 +634,22 @@ export const GeneratePanel: React.FC = () => {
       <div className="flex gap-6 items-start max-md:flex-col">
         {/* 左侧：二维码预览 */}
         <div className="shrink-0 w-[280px] sticky top-0 max-md:w-full max-md:relative">
-          <div className="bg-bg-secondary rounded-lg flex flex-col items-center justify-center shadow-sm relative min-h-[280px] w-full border border-border-light">
-            <div className="w-full flex flex-col items-center justify-center p-2.5 rounded-lg" style={{ background: setting.qrCodeBgColor, opacity: qrCodeContent ? 1 : 0 }}>
+          <div className="bg-bg-secondary rounded-2xl flex flex-col items-center justify-center shadow-sm relative min-h-[280px] w-full overflow-hidden transition-all hover:shadow-md">
+            <div className="w-full flex flex-col items-center justify-center p-4 rounded-2xl transition-all duration-300" style={{ background: setting.qrCodeBgColor, opacity: qrCodeContent ? 1 : 0.15 }}>
               <div 
                 ref={qrCodeRef} 
-                className="w-full aspect-square flex items-center justify-center transition-opacity [&_canvas]:w-full [&_canvas]:h-full [&_svg]:w-full [&_svg]:h-full "
+                className="w-full aspect-square flex items-center justify-center transition-opacity duration-300 [&_canvas]:w-full [&_canvas]:h-full [&_svg]:w-full [&_svg]:h-full"
               />
             </div>
             {!qrCodeContent && (
-              <div className="absolute inset-0 flex flex-col items-center justify-center gap-2 text-center bg-bg-secondary rounded-lg z-10">
-                <span className="text-3xl opacity-60">📝</span>
-                <span className="text-sm text-text-secondary font-medium">请输入内容</span>
+              <div className="absolute inset-0 flex flex-col items-center justify-center gap-3 text-center bg-bg-secondary/80 backdrop-blur-sm rounded-xl z-10">
+                <div className="w-16 h-16 flex items-center justify-center rounded-2xl bg-bg-tertiary">
+                  <QrcodeOutlined className="text-3xl text-text-tertiary" />
+                </div>
+                <div className="flex flex-col gap-1">
+                <span className="text-sm text-text font-semibold">请输入内容</span>
+                <span className="text-xs text-text-tertiary">二维码将在此实时预览</span>
+                </div>
               </div>
             )}
           </div>
@@ -696,7 +661,7 @@ export const GeneratePanel: React.FC = () => {
                 icon={<CopyOutlined />}
                 onClick={handleCopy}
                 disabled={!qrCodeContent}
-                className="flex-1 rounded-md font-medium"
+                className="flex-1 rounded-lg font-semibold h-10"
               >
                 复制
               </Button>
@@ -705,32 +670,32 @@ export const GeneratePanel: React.FC = () => {
               <Button 
                 onClick={() => handleDownload(setting.defaultDownloadFormat)}
                 disabled={!qrCodeContent}
-                className="flex-1 rounded-l-md font-medium"
+                className="flex-1 rounded-l-lg font-semibold h-10"
               >
                 <DownloadOutlined /> 下载
               </Button>
               <Dropdown menu={{ items: downloadMenuItems }} placement="bottomRight" trigger={['click']} disabled={!qrCodeContent}>
-                <Button icon={<DownOutlined />} className="rounded-r-md" />
+                <Button icon={<DownOutlined />} className="rounded-r-lg h-10" />
               </Dropdown>
             </Space.Compact>
           </div>
         </div>
 
         {/* 右侧：配置区 */}
-        <div className="flex-1 min-w-0 flex flex-col gap-4">
+        <div className="flex-1 min-w-0 flex flex-col gap-5">
           {/* 内容输入 */}
-          <div className="config-card bg-bg-secondary rounded-lg p-5 shadow-xs border border-border-light">
+          <div className="config-card bg-bg-secondary rounded-2xl p-6 shadow-sm transition-all hover:shadow-md">
             <Form layout="vertical" size="small">
               {renderForm()}
             </Form>
           </div>
 
-          {/* 样式设置 */}
-          <div className="config-card bg-bg-secondary rounded-lg p-5 shadow-xs border border-border-light">
+          <div className="config-card bg-bg-secondary rounded-2xl p-6 shadow-sm transition-all hover:shadow-md">
             <Tabs
               items={styleTabItems}
               defaultActiveKey="basic"
               size="small"
+              className="mt-[-8px]"
             />
           </div>
         </div>

@@ -26,13 +26,13 @@ export const Setting = (props: SettingProps) => {
       size="default"
     >
       <div className="mb-6">
-        <h4 className="text-sm font-semibold text-text-tertiary uppercase tracking-wide mb-4">
+        <h4 className="text-xs font-semibold text-text-tertiary uppercase tracking-wider mb-4">
           历史记录
         </h4>
         
         <div className="flex justify-between items-center py-3 border-b border-border-light">
           <div className="flex flex-col gap-0.5">
-            <span className="text-sm font-medium text-text">保存历史记录</span>
+            <span className="text-sm font-semibold text-text">保存历史记录</span>
             <span className="text-xs text-text-tertiary">解析和生成的内容将被保存</span>
           </div>
           <Switch
@@ -50,7 +50,7 @@ export const Setting = (props: SettingProps) => {
           <>
             <div className="flex justify-between items-center py-3 border-b border-border-light">
               <div className="flex flex-col gap-0.5">
-                <span className="text-sm font-medium text-text">自动去重</span>
+                <span className="text-sm font-semibold text-text">自动去重</span>
                 <span className="text-xs text-text-tertiary">相同内容只保留最新一条</span>
               </div>
               <Switch
@@ -63,7 +63,7 @@ export const Setting = (props: SettingProps) => {
 
             <div className="flex justify-between items-center py-3 border-b border-border-light">
               <div className="flex flex-col gap-0.5">
-                <span className="text-sm font-medium text-text">最大保留条数</span>
+                <span className="text-sm font-semibold text-text">最大保留条数</span>
               </div>
               <InputNumber
                 value={setting.maxHistoryCount}
@@ -81,13 +81,13 @@ export const Setting = (props: SettingProps) => {
       </div>
 
       <div className="mb-6">
-        <h4 className="text-sm font-semibold text-text-tertiary uppercase tracking-wide mb-4">
+        <h4 className="text-xs font-semibold text-text-tertiary uppercase tracking-wider mb-4">
           自动复制
         </h4>
         
         <div className="flex justify-between items-center py-3 border-b border-border-light">
           <div className="flex flex-col gap-0.5">
-            <span className="text-sm font-medium text-text">解析后自动复制</span>
+            <span className="text-sm font-semibold text-text">解析后自动复制</span>
             <span className="text-xs text-text-tertiary">自动复制解析结果到剪贴板</span>
           </div>
           <Switch
@@ -100,7 +100,7 @@ export const Setting = (props: SettingProps) => {
 
         <div className="flex justify-between items-center py-3 border-b border-border-light">
           <div className="flex flex-col gap-0.5">
-            <span className="text-sm font-medium text-text">生成后自动复制</span>
+            <span className="text-sm font-semibold text-text">生成后自动复制</span>
             <span className="text-xs text-text-tertiary">自动复制二维码图片到剪贴板</span>
           </div>
           <Switch
@@ -115,13 +115,13 @@ export const Setting = (props: SettingProps) => {
 
 
       <div className="mb-6">
-        <h4 className="text-sm font-semibold text-text-tertiary uppercase tracking-wide mb-4">
+        <h4 className="text-xs font-semibold text-text-tertiary uppercase tracking-wider mb-4">
           二维码样式
         </h4>
         
         <div className="flex justify-between items-center py-3 border-b border-border-light">
           <div className="flex flex-col gap-0.5">
-            <span className="text-sm font-medium text-text">默认下载格式</span>
+            <span className="text-sm font-semibold text-text">默认下载格式</span>
           </div>
           <Radio.Group 
             value={setting.defaultDownloadFormat}
@@ -136,7 +136,7 @@ export const Setting = (props: SettingProps) => {
 
         <div className="flex justify-between items-center py-3 border-b border-border-light">
           <div className="flex flex-col gap-0.5">
-            <span className="text-sm font-medium text-text">前景颜色</span>
+            <span className="text-sm font-semibold text-text">前景颜色</span>
           </div>
           <input
             type="color"
@@ -144,13 +144,13 @@ export const Setting = (props: SettingProps) => {
             onChange={(e) => {
               state.setting.qrCodeColor = e.target.value
             }}
-            className="w-10 h-8 p-1 border-2 border-border rounded-sm cursor-pointer bg-transparent"
+            className="w-10 h-8 p-1 border-2 border-border rounded-md cursor-pointer bg-transparent transition-all hover:border-primary"
           />
         </div>
 
         <div className="flex justify-between items-center py-3 border-b border-border-light last:border-none">
           <div className="flex flex-col gap-0.5">
-            <span className="text-sm font-medium text-text">背景颜色</span>
+            <span className="text-sm font-semibold text-text">背景颜色</span>
           </div>
           <input
             type="color"
@@ -158,14 +158,14 @@ export const Setting = (props: SettingProps) => {
             onChange={(e) => {
               state.setting.qrCodeBgColor = e.target.value
             }}
-            className="w-10 h-8 p-1 border-2 border-border rounded-sm cursor-pointer bg-transparent"
+            className="w-10 h-8 p-1 border-2 border-border rounded-md cursor-pointer bg-transparent transition-all hover:border-primary"
           />
         </div>
       </div>
 
       {setting.isSaveHistory && history.length > 0 && (
         <div className="mb-6">
-          <h4 className="text-sm font-semibold text-text-tertiary uppercase tracking-wide mb-4">
+          <h4 className="text-xs font-semibold text-text-tertiary uppercase tracking-wider mb-4">
             数据管理
           </h4>
           

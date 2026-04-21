@@ -327,3 +327,13 @@ export const downloadImage = (dataUrl: string, filename: string = 'qrcode.png') 
 export const canvasToDataURL = (canvas: HTMLCanvasElement): string => {
   return canvas.toDataURL('image/png')
 }
+
+// 文件转 Base64
+export const readFileAsBase64 = (file: File): Promise<string> => {
+  return new Promise((resolve, reject) => {
+    const reader = new FileReader()
+    reader.onload = (e) => resolve(e.target?.result as string)
+    reader.onerror = () => reject(new Error('文件读取失败'))
+    reader.readAsDataURL(file)
+  })
+}

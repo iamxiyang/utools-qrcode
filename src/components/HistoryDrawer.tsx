@@ -43,7 +43,7 @@ const HistoryItem = React.memo<{
         </div>
       )}
       
-      <div className="text-sm leading-relaxed text-text break-all line-clamp-3 font-mono">
+      <div className="text-sm leading-relaxed text-text break-all line-clamp-3 font-medium">
         {truncateText(item.text, 150)}
       </div>
       
@@ -225,15 +225,15 @@ export const HistoryDrawer: React.FC<HistoryDrawerProps> = ({ open, onClose, onS
     >
       <div className="h-full flex flex-col">
         {history.length > 3 && (
-          <div className="pb-3 border-b border-border-light">
-            <Input
-              placeholder="搜索内容或备注，支持正则..."
-              prefix={<SearchOutlined className="text-text-tertiary" />}
-              value={searchText}
-              onChange={(e) => setSearchText(e.target.value)}
-              allowClear
-              className="rounded-full bg-bg-secondary"
-            />
+           <div className="pb-3 border-b border-border-light">
+             <Input
+               placeholder="搜索内容或备注，支持正则..."
+               prefix={<SearchOutlined className="text-text-tertiary" />}
+               value={searchText}
+               onChange={(e) => setSearchText(e.target.value)}
+               allowClear
+               className="history-search-input"
+             />
           </div>
         )}
 

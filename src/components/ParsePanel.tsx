@@ -1,7 +1,7 @@
 import React, { useState, useCallback, useRef, useEffect } from 'react'
 import { Upload, Button, App, Spin, Modal, Select } from 'antd'
 import { CameraOutlined, PictureOutlined, VideoCameraOutlined, SwapOutlined } from '@ant-design/icons'
-import { scan } from 'qr-scanner-wechat'
+import { scan } from '../utils/qr-scanner'
 import {
   state,
   addHistory,
@@ -10,12 +10,11 @@ import {
   clearPendingParseCamera,
 } from '../store'
 import { useProxy } from 'valtio/utils'
-import { copyText } from '../utils'
+import { copyText, readFileAsBase64 } from '../utils'
 import { ParseResult } from './ParseResult'
 import { ParseHistoryList } from './ParseHistoryList'
 import { History } from '../types/types'
 
-const imgEl = document.createElement('img')
 const CAMERA_SCAN_INTERVAL = 240
 const isMac = /mac/i.test(navigator.userAgent)
 
@@ -62,9 +61,10 @@ export const ParsePanel: React.FC = () => {
     setIsLoading(true)
     
     return new Promise<void>((resolve) => {
-      imgEl.onload = async () => {
+      const img = new Image()
+      img.onload = async () => {
         try {
-          const { text } = await scan(imgEl)
+          const { text } = await scan(img)
           if (text) {
             applyParseSuccess(text, base64Str)
           } else {
@@ -77,12 +77,12 @@ export const ParsePanel: React.FC = () => {
           resolve()
         }
       }
-      imgEl.onerror = () => {
+      img.onerror = () => {
         message.error('图片加载失败')
         setIsLoading(false)
         resolve()
       }
-      imgEl.src = base64Str
+      img.src = base64Str
     })
   }, [applyParseSuccess, message])
 
@@ -340,13 +340,9 @@ export const ParsePanel: React.FC = () => {
     startCameraStream(deviceId)
   }, [startCameraStream, stopCameraStream])
 
-  const handleUpload = useCallback((file: File) => {
-    const reader = new FileReader()
-    reader.onload = (e) => {
-      const base64 = e.target?.result as string
-      parseImg(base64)
-    }
-    reader.readAsDataURL(file)
+  const handleUpload = useCallback(async (file: File) => {
+    const base64 = await readFileAsBase64(file)
+    parseImg(base64)
     return false
   }, [parseImg])
 
@@ -360,12 +356,8 @@ export const ParsePanel: React.FC = () => {
           e.preventDefault()
           const file = item.getAsFile()
           if (file) {
-            const reader = new FileReader()
-            reader.onload = (ev) => {
-              const base64 = ev.target?.result as string
-              parseImg(base64)
-            }
-            reader.readAsDataURL(file)
+            const base64 = await readFileAsBase64(file)
+            parseImg(base64)
           }
           return
         }
@@ -392,7 +384,7 @@ export const ParsePanel: React.FC = () => {
       dropZone.classList.remove('drag-over')
     }
 
-    const handleDrop = (e: DragEvent) => {
+    const handleDrop = async (e: DragEvent) => {
       e.preventDefault()
       e.stopPropagation()
       dropZone.classList.remove('drag-over')
@@ -401,12 +393,8 @@ export const ParsePanel: React.FC = () => {
       if (files && files.length > 0) {
         const file = files[0]
         if (file.type.startsWith('image/')) {
-          const reader = new FileReader()
-          reader.onload = (ev) => {
-            const base64 = ev.target?.result as string
-            parseImg(base64)
-          }
-          reader.readAsDataURL(file)
+          const base64 = await readFileAsBase64(file)
+          parseImg(base64)
         }
       }
     }
@@ -565,32 +553,34 @@ export const ParsePanel: React.FC = () => {
     <>
       <Spin spinning={isLoading} tip="正在解析...">
         <div className="h-full overflow-y-auto" ref={dropZoneRef}>
-          <div className=" mx-auto">
+          <div className="mx-auto max-w-[800px]">
             <Upload.Dragger
               accept="image/*"
               showUploadList={false}
               beforeUpload={handleUpload}
               multiple={false}
             >
-              <div className="flex flex-col items-center gap-3 py-4">
-                <div className="w-14 h-14 flex items-center justify-center text-2xl text-primary bg-primary-light rounded-lg">
-                  <PictureOutlined />
+              <div className="flex flex-col items-center gap-4 py-8">
+                <div className="w-16 h-16 flex items-center justify-center rounded-2xl bg-primary-light">
+                  <PictureOutlined className="text-3xl text-primary" />
                 </div>
-                <p className="text-base font-semibold text-text m-0">拖拽二维码图片到此</p>
-                <p className="text-sm text-text-secondary m-0">
-                  或 点击上传 · 粘贴截图 (Ctrl+V)
-                </p>
+                <div className="flex flex-col items-center gap-1.5">
+                  <p className="text-base font-bold text-text m-0">拖拽二维码图片到此区域</p>
+                  <p className="text-sm text-text-secondary m-0 font-medium">
+                    或 点击上传 · 粘贴截图 (Ctrl+V)
+                  </p>
+                </div>
               </div>
             </Upload.Dragger>
 
-            <div className="flex justify-center mt-6 gap-3">
+            <div className="flex justify-center mt-8 gap-3">
               <Button
                 type="primary"
                 icon={<CameraOutlined />}
                 size="large"
                 onClick={handleScreenCapture}
-                className="h-12 px-8 text-base font-semibold rounded-full shadow-primary"
-                style={{ background: 'linear-gradient(135deg, #1677ff 0%, #69b1ff 100%)' }}
+                className="h-12 px-8 text-base font-bold rounded-full shadow-primary"
+                style={{ background: 'var(--color-primary-gradient)' }}
               >
                 截图扫码
               </Button>

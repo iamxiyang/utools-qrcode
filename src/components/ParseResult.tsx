@@ -80,20 +80,13 @@ export const ParseResult: React.FC<ParseResultProps> = ({
       },
     }
 
-    // 使用 setTimeout 确保 DOM 已经渲染
-    const timer = setTimeout(() => {
-      if (!qrCodeRef.current) return
-      
-      if (!qrCodeInstance.current) {
-        qrCodeInstance.current = new QRCodeStyling(options)
-        qrCodeRef.current.innerHTML = ''
-        qrCodeInstance.current.append(qrCodeRef.current)
-      } else {
-        qrCodeInstance.current.update(options)
-      }
-    }, 50)
-
-    return () => clearTimeout(timer)
+    if (!qrCodeInstance.current) {
+      qrCodeInstance.current = new QRCodeStyling(options)
+      qrCodeRef.current.innerHTML = ''
+      qrCodeInstance.current.append(qrCodeRef.current)
+    } else {
+      qrCodeInstance.current.update(options)
+    }
   }, [editableText])
 
   const handleCopy = () => {
@@ -189,7 +182,7 @@ export const ParseResult: React.FC<ParseResultProps> = ({
 
   return (
     <div className="h-full overflow-y-auto">
-      <div className=" mx-auto p-5">
+      <div className="mx-auto max-w-[800px] p-5">
         <div className="flex justify-between items-center mb-5">
           <Button
             type="text"
@@ -210,31 +203,27 @@ export const ParseResult: React.FC<ParseResultProps> = ({
           </Space.Compact>
         </div>
 
-        <div className="bg-bg-secondary rounded-lg p-6 shadow-sm border border-border-light">
-          <div className="flex gap-6 items-start">
-            {/* 左侧：二维码预览 */}
-            <div className="shrink-0 w-[100px] h-[100px] rounded-lg overflow-hidden bg-bg-tertiary flex items-center justify-center border border-border-light relative">
-              {/* 始终渲染二维码容器，使用定位覆盖 */}
+        <div className="bg-bg-secondary rounded-2xl p-7 shadow-sm transition-all hover:shadow-md">
+          <div className="flex gap-5 items-start max-sm:flex-col">
+            <div className="shrink-0 w-[100px] h-[100px] rounded-2xl overflow-hidden bg-white flex items-center justify-center relative shadow-sm">
               <div 
                 ref={qrCodeRef} 
-                className={`absolute inset-0 flex items-center justify-center [&_canvas]:w-full [&_canvas]:h-full bg-white ${isTextModified ? 'opacity-100 z-10' : 'opacity-0 z-0'}`}
+                className={`absolute inset-0 flex items-center justify-center [&_canvas]:w-full [&_canvas]:h-full bg-white transition-opacity duration-300 ${isTextModified ? 'opacity-100 z-10' : 'opacity-0 z-0'}`}
               />
-              {/* 原始图片或占位符 */}
               {imagePreview ? (
                 <img 
                   src={imagePreview} 
                   alt="二维码" 
-                  className={`max-w-full max-h-full object-contain ${isTextModified ? 'opacity-0' : 'opacity-100'}`} 
+                  className={`max-w-full max-h-full object-contain transition-opacity duration-300 ${isTextModified ? 'opacity-0' : 'opacity-100'}`} 
                 />
               ) : !isTextModified && (
                 <QrcodeOutlined className="text-3xl text-text-tertiary" />
               )}
             </div>
             
-            {/* 右侧：解析结果 */}
             <div className="flex-1 min-w-0">
               <div className="flex items-center justify-between mb-3">
-                <Tag color="blue" className="rounded-full font-medium px-3 py-1">
+                <Tag color="blue" className="rounded-full font-medium px-3 py-1 border-none">
                   <span className="mr-1.5">{contentType.icon}</span>
                   <span>{contentType.label}</span>
                 </Tag>
@@ -250,9 +239,9 @@ export const ParseResult: React.FC<ParseResultProps> = ({
                 )}
               </div>
               
-              <div className="bg-bg-tertiary rounded-md p-4 max-h-[200px] overflow-y-auto">
+              <div className="bg-bg-tertiary rounded-lg p-4 max-h-[200px] overflow-y-auto border border-border-light">
                 {showFormatted && canFormat ? (
-                  <pre className="m-0 text-base leading-relaxed whitespace-pre-wrap break-all font-inherit text-text font-medium">
+                  <pre className="m-0 text-sm leading-relaxed whitespace-pre-wrap break-all font-inherit text-text font-medium">
                     {decodedInfo.formatted}
                   </pre>
                 ) : (
@@ -260,7 +249,7 @@ export const ParseResult: React.FC<ParseResultProps> = ({
                     value={editableText}
                     onChange={(e) => setEditableText(e.target.value)}
                     autoSize={{ minRows: 2, maxRows: 6 }}
-                    className="!text-base !leading-relaxed !font-medium"
+                    className="!text-sm !leading-relaxed !font-medium"
                     placeholder="解析结果"
                     variant="borderless"
                   />
@@ -275,12 +264,13 @@ export const ParseResult: React.FC<ParseResultProps> = ({
             </div>
           </div>
 
-          <div className="flex justify-center gap-3 mt-6">
+          <div className="flex justify-center gap-2 mt-6">
             <Space size="middle" wrap>
               <Button
                 type="primary"
                 icon={<CopyOutlined />}
                 onClick={showFormatted && canFormat ? handleCopyFormatted : handleCopy}
+                className="rounded-lg font-semibold"
               >
                 复制
               </Button>
@@ -289,6 +279,7 @@ export const ParseResult: React.FC<ParseResultProps> = ({
                 <Button
                   icon={<LinkOutlined />}
                   onClick={handleOpenUrl}
+                  className="rounded-lg font-medium"
                 >
                   打开
                 </Button>
@@ -297,6 +288,7 @@ export const ParseResult: React.FC<ParseResultProps> = ({
               <Button
                 icon={<QrcodeOutlined />}
                 onClick={handleRegenerate}
+                className="rounded-lg font-medium"
               >
                 再生成
               </Button>

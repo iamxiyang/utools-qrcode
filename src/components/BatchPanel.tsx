@@ -215,31 +215,30 @@ export const BatchPanel: React.FC = () => {
   ]
 
   return (
-    <div className=" mx-auto">
-      {/* 头部说明 */}
-      <div className="text-center mb-7">
-        <h2 className="text-xl font-semibold m-0 mb-2 text-text">批量生成二维码</h2>
+    <div className="mx-auto max-w-[800px]">
+      <div className="text-center mb-8">
+        <h2 className="text-xl font-bold m-0 mb-2 text-text">批量生成二维码</h2>
         <p className="text-sm text-text-secondary m-0">输入多行文本，每行生成一个二维码</p>
       </div>
 
-      <div className="bg-bg-secondary rounded-lg p-6 shadow-xs border border-border-light">
+      <div className="bg-bg-secondary rounded-2xl p-7 shadow-sm transition-all hover:shadow-md">
         {/* Step 1: 数据输入 */}
         {currentStep === 0 && (
           <div>
             <div className="mb-5">
               <div className="flex justify-between items-center mb-3">
-                <span className="text-sm font-medium text-text">输入内容（每行一个，最多 100 条）</span>
+                <span className="text-sm font-semibold text-text">输入内容（每行一个，最多 100 条）</span>
               </div>
               <TextArea
                 placeholder="每行一个内容，例如：&#10;https://example.com&#10;https://example.org&#10;..."
                 value={inputText}
                 onChange={(e) => setInputText(e.target.value)}
                 rows={10}
-                className="font-mono text-sm rounded-md"
+                className="font-mono text-sm rounded-lg"
               />
             </div>
 
-            <div className="mb-6 p-4 bg-bg-tertiary rounded-lg">
+            <div className="mb-6 p-5 bg-bg-tertiary rounded-2xl shadow-xs">
               <div className="mb-4 pb-4">
                 <div className="flex flex-col gap-1 mb-3">
                   <span className="text-sm font-semibold text-text">📝 内容规则</span>
@@ -327,7 +326,7 @@ export const BatchPanel: React.FC = () => {
             </div>
 
             <div className="flex justify-center gap-3 mt-6">
-              <Button type="primary" onClick={parseInput} size="large" className="rounded-full font-medium">
+              <Button type="primary" onClick={parseInput} size="large" className="rounded-full font-semibold">
                 下一步：预览
               </Button>
             </div>
@@ -385,7 +384,7 @@ export const BatchPanel: React.FC = () => {
                   onClick={handleDownload}
                   loading={generating}
                   size="large"
-                  className="rounded-full font-medium"
+                  className="rounded-full font-semibold"
                 >
                   {downloadMode === 'zip' ? '生成并下载 ZIP' : '选择目录保存'}
                 </Button>

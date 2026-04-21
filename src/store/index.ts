@@ -167,9 +167,10 @@ export const shouldShowAppreciate = () => {
   return state.usageStats.totalUseCount >= 10 && !state.usageStats.appreciateShown
 }
 
-// 辅助函数：设置待解析图片（优化：使用 ref 避免大字符串的深度追踪）
+// 辅助函数：设置待解析图片
+// 使用 ref 包装大字符串，避免 Valtio 对 base64 数据进行深度代理追踪
 export const setPendingParseImage = (base64: string | null) => {
-  state.pendingParseImage = base64 ? ref({ data: base64 }).data : null
+  state.pendingParseImage = base64 ? (ref({ data: base64 }) as any).data : null
 }
 
 // 辅助函数：清除待解析图片

@@ -6,52 +6,51 @@
 $heartbeat-scale: 1.15;
 
 :root {
-  // 主色调 - Ant Design 5 默认主题色
-  --color-primary: #1677ff;
-  --color-primary-hover: #4096ff;
-  --color-primary-active: #0958d9;
-  --color-primary-light: rgba(22, 119, 255, 0.08);
-  --color-primary-gradient: linear-gradient(135deg, #1677ff 0%, #69b1ff 100%);
-  --color-primary-glow: rgba(22, 119, 255, 0.25);
+  // 主色调 - 纯净蓝色系
+  --color-primary: #2563eb;
+  --color-primary-hover: #3b82f6;
+  --color-primary-active: #1d4ed8;
+  --color-primary-light: rgba(37, 99, 235, 0.08);
+  --color-primary-gradient: linear-gradient(135deg, #2563eb 0%, #60a5fa 100%);
+  --color-primary-glow: rgba(37, 99, 235, 0.18);
 
-  // 状态色 - 使用 Ant Design 默认状态色
-  --color-success: #52c41a;
-  --color-error: #ff4d4f;
-  --color-warning: #faad14;
-  --color-info: #1677ff;
-  --color-success-bg: rgba(82, 196, 26, 0.1);
-  --color-error-bg: rgba(255, 77, 79, 0.1);
-  --color-warning-bg: rgba(250, 173, 20, 0.1);
-  --color-info-bg: rgba(22, 119, 255, 0.1);
+  // 状态色
+  --color-success: #16a34a;
+  --color-error: #dc2626;
+  --color-warning: #f59e0b;
+  --color-info: #2563eb;
+  --color-success-bg: rgba(22, 163, 74, 0.08);
+  --color-error-bg: rgba(220, 38, 38, 0.08);
+  --color-warning-bg: rgba(245, 158, 11, 0.08);
+  --color-info-bg: rgba(37, 99, 235, 0.08);
 
-  // 背景色
-  --color-bg: #f5f5f5;
+  // 背景色 - 冷灰调
+  --color-bg: #f8f9fb;
   --color-bg-secondary: #ffffff;
-  --color-bg-tertiary: #fafafa;
+  --color-bg-tertiary: #f1f3f7;
   --color-bg-elevated: #ffffff;
-  --color-bg-blur: rgba(255, 255, 255, 0.85);
+  --color-bg-blur: rgba(255, 255, 255, 0.88);
 
-  // 文字色 - Ant Design 默认文字色
-  --color-text: rgba(0, 0, 0, 0.88);
-  --color-text-secondary: rgba(0, 0, 0, 0.65);
-  --color-text-tertiary: rgba(0, 0, 0, 0.45);
+  --color-text: rgba(15, 23, 42, 0.94);
+  --color-text-secondary: rgba(15, 23, 42, 0.72);
+  --color-text-tertiary: rgba(15, 23, 42, 0.48);
 
-  // 边框 - Ant Design 默认边框色
-  --color-border: #d9d9d9;
-  --color-border-light: #f0f0f0;
+  // 边框 - 冷灰
+  --color-border: #d1d5db;
+  --color-border-light: #e5e7eb;
 
-  // 阴影
-  --shadow-xs: 0 1px 2px rgba(0, 0, 0, 0.03);
-  --shadow-sm: 0 2px 8px rgba(0, 0, 0, 0.06);
-  --shadow-md: 0 4px 12px rgba(0, 0, 0, 0.08);
-  --shadow-lg: 0 8px 24px rgba(0, 0, 0, 0.12);
-  --shadow-primary: 0 6px 16px rgba(22, 119, 255, 0.2);
+  // 阴影 - 更加柔和高级
+  --shadow-xs: 0 1px 3px rgba(15, 23, 42, 0.03);
+  --shadow-sm: 0 4px 12px rgba(15, 23, 42, 0.05);
+  --shadow-md: 0 8px 24px rgba(15, 23, 42, 0.06);
+  --shadow-lg: 0 12px 32px rgba(15, 23, 42, 0.08);
+  --shadow-primary: 0 8px 20px rgba(37, 99, 235, 0.15);
 
-  // 圆角
-  --radius-sm: 6px;
-  --radius-md: 8px;
-  --radius-lg: 12px;
-  --radius-xl: 16px;
+  // 圆角 - 更加圆润 (Apple / Bento 风格)
+  --radius-sm: 8px;
+  --radius-md: 12px;
+  --radius-lg: 16px;
+  --radius-xl: 20px;
   --radius-full: 9999px;
 
   // 过渡
@@ -64,39 +63,58 @@ $heartbeat-scale: 1.15;
 :root.dark,
 html.dark,
 .dark {
-  --color-primary: #1668dc;
-  --color-primary-hover: #3c89e8;
-  --color-primary-active: #1554ad;
-  --color-primary-light: rgba(22, 104, 220, 0.15);
-  --color-primary-glow: rgba(22, 104, 220, 0.25);
+  --color-primary: #3b82f6;
+  --color-primary-hover: #60a5fa;
+  --color-primary-active: #2563eb;
+  --color-primary-light: rgba(59, 130, 246, 0.12);
+  --color-primary-glow: rgba(59, 130, 246, 0.22);
 
-  --color-success: #49aa19;
-  --color-error: #dc4446;
-  --color-warning: #d89614;
-  --color-info: #1668dc;
-  --color-success-bg: rgba(73, 170, 25, 0.15);
-  --color-error-bg: rgba(220, 68, 70, 0.15);
-  --color-warning-bg: rgba(216, 150, 20, 0.15);
-  --color-info-bg: rgba(22, 104, 220, 0.15);
+  --color-success: #22c55e;
+  --color-error: #ef4444;
+  --color-warning: #fbbf24;
+  --color-info: #3b82f6;
+  --color-success-bg: rgba(34, 197, 94, 0.12);
+  --color-error-bg: rgba(239, 68, 68, 0.12);
+  --color-warning-bg: rgba(251, 191, 36, 0.12);
+  --color-info-bg: rgba(59, 130, 246, 0.12);
 
-  --color-bg: #141414;
-  --color-bg-secondary: #1f1f1f;
-  --color-bg-tertiary: #262626;
-  --color-bg-elevated: #2a2a2a;
-  --color-bg-blur: rgba(20, 20, 20, 0.85);
+  --color-bg: #0f1117;
+  --color-bg-secondary: #1a1b23;
+  --color-bg-tertiary: #22232d;
+  --color-bg-elevated: #282933;
+  --color-bg-blur: rgba(15, 17, 23, 0.88);
 
-  --color-text: rgba(255, 255, 255, 0.85);
-  --color-text-secondary: rgba(255, 255, 255, 0.65);
-  --color-text-tertiary: rgba(255, 255, 255, 0.45);
+  --color-text: rgba(248, 250, 252, 0.94);
+  --color-text-secondary: rgba(248, 250, 252, 0.74);
+  --color-text-tertiary: rgba(248, 250, 252, 0.50);
 
-  --color-border: #424242;
-  --color-border-light: #303030;
+  --color-border: #363845;
+  --color-border-light: #2a2b36;
 
-  --shadow-xs: 0 1px 2px rgba(0, 0, 0, 0.4);
-  --shadow-sm: 0 2px 8px rgba(0, 0, 0, 0.5);
-  --shadow-md: 0 4px 12px rgba(0, 0, 0, 0.6);
-  --shadow-lg: 0 8px 24px rgba(0, 0, 0, 0.7);
-  --shadow-primary: 0 6px 16px rgba(22, 104, 220, 0.3);
+  --shadow-xs: 0 1px 3px rgba(0, 0, 0, 0.15);
+  --shadow-sm: 0 4px 12px rgba(0, 0, 0, 0.2);
+  --shadow-md: 0 8px 24px rgba(0, 0, 0, 0.3);
+  --shadow-lg: 0 12px 32px rgba(0, 0, 0, 0.4);
+  --shadow-primary: 0 8px 20px rgba(59, 130, 246, 0.2);
+}
+
+// Windows 下避免毛玻璃和低对比度叠加造成发虚感
+:root.is-windows,
+html.is-windows,
+.is-windows {
+  --color-bg-blur: rgba(255, 255, 255, 0.96);
+  --color-text-secondary: rgba(15, 23, 42, 0.78);
+  --color-text-tertiary: rgba(15, 23, 42, 0.52);
+  --color-border-light: #e2e5ea;
+}
+
+:root.dark.is-windows,
+html.dark.is-windows,
+.dark.is-windows {
+  --color-bg-blur: rgba(15, 17, 23, 0.98);
+  --color-text-secondary: rgba(248, 250, 252, 0.80);
+  --color-text-tertiary: rgba(248, 250, 252, 0.56);
+  --color-border-light: #32333e;
 }
 
 /* ========================================
@@ -113,17 +131,6 @@ html {
   -webkit-text-size-adjust: 100%;
 }
 
-// macOS: 灰度抗锯齿，字体看起来更细腻
-html.platform-mac {
-  -webkit-font-smoothing: antialiased;
-  -moz-osx-font-smoothing: grayscale;
-}
-
-// Windows: 使用亚像素渲染（ClearType），字体更清晰饱满
-html.platform-win {
-  -webkit-font-smoothing: subpixel-antialiased;
-}
-
 html,
 body,
 #root {
@@ -133,34 +140,31 @@ body,
 }
 
 body {
-  font-family:
-    -apple-system,
-    BlinkMacSystemFont,
-    'Segoe UI Variable Display',
-    'Segoe UI',
-    'Microsoft YaHei UI',
-    'PingFang SC',
-    'Hiragino Sans GB',
-    system-ui,
-    sans-serif;
-
-  text-rendering: optimizeLegibility;
-  -webkit-text-size-adjust: 100%;
-  -ms-text-size-adjust: 100%;
-  font-feature-settings: 'kern' 1, 'liga' 1;
+  font-family: system-ui, -apple-system, sans-serif;
+  font-size: 14px;
+  line-height: 1.5715;
+  font-weight: 450;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
 
   background: var(--color-bg);
   color: var(--color-text);
-  font-size: 14px;
-  line-height: 1.5715;
-  letter-spacing: 0.01em;
   transition: background-color var(--transition-normal), color var(--transition-normal);
 }
 
-// Windows 专用字体调整
-html.platform-win body {
-  letter-spacing: normal;
-  font-feature-settings: 'kern' 1;
+html.is-windows body,
+html.is-windows input,
+html.is-windows textarea,
+html.is-windows button {
+  font-family: "Segoe UI", "Microsoft YaHei UI", "Microsoft YaHei", system-ui, sans-serif;
+}
+
+html.is-windows .backdrop-blur-lg,
+html.is-windows .ant-drawer-mask-blur,
+html.is-windows .ant-modal-mask-blur,
+html.is-windows .ant-image-preview-mask-blur {
+  -webkit-backdrop-filter: none !important;
+  backdrop-filter: none !important;
 }
 
 ::selection {
@@ -170,8 +174,8 @@ html.platform-win body {
 
 // 滚动条
 ::-webkit-scrollbar {
-  width: 6px;
-  height: 6px;
+  width: 5px;
+  height: 5px;
 
   &-track {
     background: transparent;
@@ -180,6 +184,7 @@ html.platform-win body {
   &-thumb {
     background: var(--color-border);
     border-radius: var(--radius-full);
+    transition: background var(--transition-fast);
 
     &:hover {
       background: var(--color-text-tertiary);
@@ -346,6 +351,7 @@ html.platform-win body {
     height: 28px;
     line-height: 26px;
     padding: 0 10px;
+    transition: all var(--transition-fast);
 
     &:first-child,
     &:last-child {
@@ -365,6 +371,7 @@ html.platform-win body {
       background: var(--color-primary) !important;
       border-color: var(--color-primary) !important;
       color: #fff !important;
+      box-shadow: var(--shadow-primary);
 
       &:hover {
         background: var(--color-primary-hover) !important;
@@ -373,19 +380,19 @@ html.platform-win body {
   }
 
   .ant-form-item {
-    margin-bottom: 20px;
+    margin-bottom: 18px;
 
     &:last-child {
       margin-bottom: 0;
     }
 
     &-label {
-      padding-bottom: 8px;
+      padding-bottom: 6px;
 
       >label {
-        font-size: 14px;
-        font-weight: 500;
-        color: var(--color-text-secondary);
+        font-size: 13px;
+        font-weight: 600;
+        color: var(--color-text);
       }
     }
   }
@@ -407,6 +414,10 @@ html.platform-win body {
       border-color: var(--color-primary) !important;
       box-shadow: 0 0 0 3px var(--color-primary-light) !important;
     }
+  }
+
+  .ant-slider {
+    margin-top: 4px;
   }
 }
 
@@ -697,4 +708,74 @@ html.platform-win body {
   &.ant-input-affix-wrapper-focused {
     background: var(--color-bg-elevated) !important;
   }
+}
+
+/* ========================================
+   拖拽区域反馈样式
+   ======================================== */
+.drag-over {
+  background: var(--color-primary-light) !important;
+  border-radius: var(--radius-xl);
+  transition: background var(--transition-fast);
+
+  .ant-upload-drag {
+    background: var(--color-primary-light) !important;
+    border-color: var(--color-primary) !important;
+    transform: scale(1.01);
+  }
+}
+
+/* ========================================
+   二维码预览过渡效果
+   ======================================== */
+.qr-preview-container {
+  img,
+  canvas {
+    transition: opacity var(--transition-normal);
+  }
+}
+
+/* ========================================
+   Upload Dragger 优化
+   ======================================== */
+.ant-upload-drag {
+  border-color: var(--color-border) !important;
+  border-radius: var(--radius-xl) !important;
+  background: var(--color-bg-secondary) !important;
+  transition: all var(--transition-normal) !important;
+
+  &:hover {
+    border-color: var(--color-primary) !important;
+    background: var(--color-bg-elevated) !important;
+  }
+
+  &.ant-upload-drag-hover {
+    border-color: var(--color-primary) !important;
+    background: var(--color-primary-light) !important;
+    box-shadow: var(--shadow-primary);
+  }
+}
+
+/* ========================================
+   模式切换按钮动画
+   ======================================== */
+.mode-switch-btn {
+  transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
+
+  &:active {
+    transform: scale(0.96);
+  }
+}
+
+/* ========================================
+   Spin 加载动画优化
+   ======================================== */
+.ant-spin-blur {
+  opacity: 0.4 !important;
+  transition: opacity var(--transition-normal);
+}
+
+.ant-spin-text {
+  font-size: 13px;
+  color: var(--color-text-secondary);
 }

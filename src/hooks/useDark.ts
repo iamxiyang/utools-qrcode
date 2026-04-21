@@ -1,4 +1,6 @@
-import { useState, useEffect, useCallback, useMemo, useLayoutEffect, useRef } from 'react'
+import { useState, useEffect, useCallback, useMemo, useLayoutEffect } from 'react'
+
+const isWindows = /^win/i.test(navigator.platform)
 
 export const useDark = () => {
   const [systemTheme, setTheme] = useState(utools.isDarkColors())
@@ -43,11 +45,8 @@ export const useTheme = () => {
  */
 export const useSyncThemeClass = () => {
   const isDark = useDark()
-  const isFirstSync = useRef(true)
 
-  // 使用 useLayoutEffect 在 DOM 绘制前同步类，避免闪烁
   useLayoutEffect(() => {
-    // 只在首次或 isDark 真正变化时更新
     const html = document.documentElement
     const hasDarkClass = html.classList.contains('dark')
 
@@ -57,6 +56,6 @@ export const useSyncThemeClass = () => {
       html.classList.remove('dark')
     }
 
-    isFirstSync.current = false
+    html.classList.toggle('is-windows', isWindows)
   }, [isDark])
 }
