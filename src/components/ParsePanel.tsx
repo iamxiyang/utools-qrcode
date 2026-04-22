@@ -1,7 +1,7 @@
 import React, { useState, useCallback, useRef, useEffect } from 'react'
 import { Upload, Button, App, Spin, Modal, Select } from 'antd'
 import { CameraOutlined, PictureOutlined, VideoCameraOutlined, SwapOutlined } from '@ant-design/icons'
-import { scan } from '../utils/qr-scanner'
+import { scan, warmupScanner } from '../utils/qr-scanner'
 import {
   state,
   addHistory,
@@ -21,7 +21,13 @@ const isMac = /mac/i.test(navigator.userAgent)
 export const ParsePanel: React.FC = () => {
   const { message } = App.useApp()
   const stateProxy = useProxy(state)
-  const { setting, pendingParseImage, pendingParseText, pendingParseCamera } = stateProxy
+  const {
+    setting,
+    storageHydrated,
+    pendingParseImage,
+    pendingParseText,
+    pendingParseCamera,
+  } = stateProxy
   
   const [viewState, setViewState] = useState<'input' | 'result'>('input')
   const [parsedText, setParsedText] = useState('')
@@ -347,6 +353,14 @@ export const ParsePanel: React.FC = () => {
   }, [parseImg])
 
   useEffect(() => {
+    const timer = window.setTimeout(() => {
+      void warmupScanner()
+    }, 600)
+
+    return () => window.clearTimeout(timer)
+  }, [])
+
+  useEffect(() => {
     const handlePaste = async (e: ClipboardEvent) => {
       const items = e.clipboardData?.items
       if (!items) return
@@ -597,11 +611,13 @@ export const ParsePanel: React.FC = () => {
             </div>
           </div>
   
-          <ParseHistoryList 
-            onSelect={handleHistorySelect}
-            title="最近解析"
-            maxItems={10}
-          />
+          {storageHydrated && (
+            <ParseHistoryList
+              onSelect={handleHistorySelect}
+              title="最近解析"
+              maxItems={10}
+            />
+          )}
         </div>
       </Spin>
 

@@ -15,9 +15,120 @@
         } catch (e) {}
       })();
     </script>
+    <style>
+      html, body, #root {
+        width: 100%;
+        height: 100%;
+        margin: 0;
+      }
+
+      .boot-shell {
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        width: 100%;
+        height: 100%;
+        background:
+          radial-gradient(circle at top, rgba(96, 165, 250, 0.18), transparent 42%),
+          #f8f9fb;
+        color: rgba(15, 23, 42, 0.92);
+        font-family: system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+      }
+
+      html.dark .boot-shell {
+        background:
+          radial-gradient(circle at top, rgba(96, 165, 250, 0.22), transparent 42%),
+          #0f1117;
+        color: rgba(248, 250, 252, 0.92);
+      }
+
+      .boot-shell__card {
+        width: min(320px, calc(100vw - 48px));
+        padding: 28px 24px;
+        border-radius: 20px;
+        background: rgba(255, 255, 255, 0.78);
+        box-shadow: 0 16px 48px rgba(15, 23, 42, 0.08);
+        backdrop-filter: blur(14px);
+      }
+
+      html.dark .boot-shell__card {
+        background: rgba(26, 27, 35, 0.82);
+        box-shadow: 0 16px 48px rgba(0, 0, 0, 0.28);
+      }
+
+      .boot-shell__icon {
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+        width: 48px;
+        height: 48px;
+        border-radius: 16px;
+        margin-bottom: 14px;
+        background: linear-gradient(135deg, #2563eb 0%, #60a5fa 100%);
+        color: #fff;
+        font-size: 18px;
+        font-weight: 700;
+        letter-spacing: 0.08em;
+      }
+
+      .boot-shell__title {
+        margin: 0 0 6px;
+        font-size: 18px;
+        font-weight: 700;
+      }
+
+      .boot-shell__subtitle {
+        margin: 0 0 18px;
+        font-size: 13px;
+        line-height: 1.6;
+        color: rgba(15, 23, 42, 0.62);
+      }
+
+      html.dark .boot-shell__subtitle {
+        color: rgba(248, 250, 252, 0.66);
+      }
+
+      .boot-shell__bar {
+        position: relative;
+        overflow: hidden;
+        height: 6px;
+        border-radius: 999px;
+        background: rgba(37, 99, 235, 0.1);
+      }
+
+      .boot-shell__bar span {
+        position: absolute;
+        inset: 0 auto 0 0;
+        width: 40%;
+        border-radius: inherit;
+        background: linear-gradient(90deg, #2563eb 0%, #60a5fa 100%);
+        animation: boot-loading 1.1s ease-in-out infinite;
+      }
+
+      @keyframes boot-loading {
+        0% {
+          transform: translateX(-100%);
+        }
+
+        100% {
+          transform: translateX(260%);
+        }
+      }
+    </style>
   </head>
   <body>
-    <div id="root"></div>
+    <div id="root">
+      <div class="boot-shell" aria-hidden="true">
+        <div class="boot-shell__card">
+          <div class="boot-shell__icon">QR</div>
+          <p class="boot-shell__title">二维码小助手</p>
+          <p class="boot-shell__subtitle">正在准备解析、生成和历史记录...</p>
+          <div class="boot-shell__bar">
+            <span></span>
+          </div>
+        </div>
+      </div>
+    </div>
     <script type="module" src="/src/main.tsx"></script>
   </body>
 </html>

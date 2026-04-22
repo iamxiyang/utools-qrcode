@@ -12,6 +12,7 @@ import {
 import { useTheme, useSyncThemeClass } from './hooks'
 import {
   state,
+  hydratePersistedState,
   shouldShowAppreciate,
   markAppreciateShown,
   setPendingParseImage,
@@ -20,14 +21,25 @@ import {
 } from './store'
 import { useProxy } from 'valtio/utils'
 import { AppMode, History } from './types/types'
-import { GeneratePanel } from './components/GeneratePanel'
-import { BatchPanel } from './components/BatchPanel'
-import { HistoryDrawer } from './components/HistoryDrawer'
-import { Setting } from './components/Setting'
-import { Contact } from './components/Contact'
 
 const LazyParsePanel = lazy(() =>
   import('./components/ParsePanel').then(m => ({ default: m.ParsePanel }))
+)
+
+const LazyGeneratePanel = lazy(() =>
+  import('./components/GeneratePanel').then(m => ({ default: m.GeneratePanel }))
+)
+
+const LazyBatchPanel = lazy(() =>
+  import('./components/BatchPanel').then(m => ({ default: m.BatchPanel }))
+)
+
+const LazyHistoryDrawer = lazy(() =>
+  import('./components/HistoryDrawer').then(m => ({ default: m.HistoryDrawer }))
+)
+
+const LazySetting = lazy(() =>
+  import('./components/Setting').then(m => ({ default: m.Setting }))
 )
 
 const ThemeMap = {
@@ -54,30 +66,89 @@ const modeOptions = [
   { key: 'batch' as const, label: '批量', icon: <AppstoreOutlined /> },
 ]
 
+const MainPanelFallback = (
+  <div className="flex items-center justify-center h-40">
+    <Spin />
+  </div>
+)
+
+const scheduleAfterFirstPaint = (task: () => void) => {
+  const idleWindow = window as Window & typeof globalThis & {
+    requestIdleCallback?: (callback: () => void, options?: { timeout: number }) => number
+    cancelIdleCallback?: (handle: number) => void
+  }
+
+  if (idleWindow.requestIdleCallback) {
+    const idleId = idleWindow.requestIdleCallback(() => task(), { timeout: 1200 })
+    return () => idleWindow.cancelIdleCallback?.(idleId)
+  }
+
+  let timeoutId = 0
+  const frameId = window.requestAnimationFrame(() => {
+    timeoutId = window.setTimeout(task, 0)
+  })
+
+  return () => {
+    window.cancelAnimationFrame(frameId)
+    if (timeoutId) {
+      window.clearTimeout(timeoutId)
+    }
+  }
+}
+
 function HomePage() {
   const currentTheme = useTheme()
   const { modal } = App.useApp()
 
-  const { mode: currentMode, usageStats } = useProxy(state)
+  const { mode: currentMode, usageStats, storageHydrated } = useProxy(state)
   const { history } = useProxy(state)
   const historyCount = history.length
 
   const initialHistoryCount = useRef(historyCount)
+  const didCaptureInitialHistoryCount = useRef(false)
 
   const [settingOpen, setSettingOpen] = useState(false)
   const [historyOpen, setHistoryOpen] = useState(false)
   const [appreciateOpen, setAppreciateOpen] = useState(false)
+  const [mountedModes, setMountedModes] = useState<Record<AppMode, boolean>>({
+    parse: true,
+    generate: false,
+    batch: false,
+  })
 
   // 检测是否需要显示赞赏引导
   useEffect(() => {
+    if (!storageHydrated || appreciateOpen) return
+
     const timer = setTimeout(() => {
       if (shouldShowAppreciate()) {
         setAppreciateOpen(true)
         markAppreciateShown()
       }
     }, 2000)
+
     return () => clearTimeout(timer)
+  }, [storageHydrated, appreciateOpen, usageStats.totalUseCount, usageStats.appreciateShown])
+
+  useEffect(() => {
+    return scheduleAfterFirstPaint(() => {
+      void hydratePersistedState()
+    })
   }, [])
+
+  useEffect(() => {
+    if (didCaptureInitialHistoryCount.current || !storageHydrated) return
+    initialHistoryCount.current = historyCount
+    didCaptureInitialHistoryCount.current = true
+  }, [storageHydrated, historyCount])
+
+  useEffect(() => {
+    if (mountedModes[currentMode]) return
+    setMountedModes(prev => ({
+      ...prev,
+      [currentMode]: true,
+    }))
+  }, [currentMode, mountedModes])
 
   // 处理 uTools 入口
   useEffect(() => {
@@ -169,14 +240,16 @@ function HomePage() {
   )
 
   const handleShowContact = useCallback(() => {
-    modal.info({
-      title: '联系/打赏作者',
-      width: 480,
-      centered: true,
-      icon: null,
-      okText: '关闭',
-      content: Contact,
-      className: 'contact-modal',
+    import('./components/Contact').then(({ Contact }) => {
+      modal.info({
+        title: '联系/打赏作者',
+        width: 480,
+        centered: true,
+        icon: null,
+        okText: '关闭',
+        content: Contact,
+        className: 'contact-modal',
+      })
     })
   }, [modal])
 
@@ -213,7 +286,9 @@ function HomePage() {
                 {historyCount > 0 && (
                   <span
                     className={`absolute top-1 right-1 min-w-4 h-4 px-1 text-[10px] font-semibold leading-4 text-center text-white rounded-full transition-colors ${
-                      historyCount > initialHistoryCount.current ? 'bg-primary' : 'bg-text-tertiary'
+                      storageHydrated && didCaptureInitialHistoryCount.current && historyCount > initialHistoryCount.current
+                        ? 'bg-primary'
+                        : 'bg-text-tertiary'
                     }`}
                   >
                     {historyCount > 99 ? '99+' : historyCount}
@@ -242,21 +317,39 @@ function HomePage() {
 
         <main className="flex-1 overflow-y-auto overflow-x-hidden p-6">
           <div style={{ display: currentMode === 'parse' ? 'block' : 'none' }}>
-            <Suspense fallback={<div className="flex items-center justify-center h-40"><Spin /></div>}>
-              <LazyParsePanel />
-            </Suspense>
+            {mountedModes.parse && (
+              <Suspense fallback={MainPanelFallback}>
+                <LazyParsePanel />
+              </Suspense>
+            )}
           </div>
           <div style={{ display: currentMode === 'generate' ? 'block' : 'none' }}>
-            <GeneratePanel />
+            {mountedModes.generate && (
+              <Suspense fallback={MainPanelFallback}>
+                <LazyGeneratePanel />
+              </Suspense>
+            )}
           </div>
           <div style={{ display: currentMode === 'batch' ? 'block' : 'none' }}>
-            <BatchPanel />
+            {mountedModes.batch && (
+              <Suspense fallback={MainPanelFallback}>
+                <LazyBatchPanel />
+              </Suspense>
+            )}
           </div>
         </main>
 
-        <HistoryDrawer open={historyOpen} onClose={() => setHistoryOpen(false)} onSelect={handleHistorySelect} />
+        {historyOpen && (
+          <Suspense fallback={null}>
+            <LazyHistoryDrawer open={historyOpen} onClose={() => setHistoryOpen(false)} onSelect={handleHistorySelect} />
+          </Suspense>
+        )}
 
-        <Setting open={settingOpen} onClose={() => setSettingOpen(false)} />
+        {settingOpen && (
+          <Suspense fallback={null}>
+            <LazySetting open={settingOpen} onClose={() => setSettingOpen(false)} />
+          </Suspense>
+        )}
 
         {/* 赞赏引导弹窗 */}
         <Modal open={appreciateOpen} onCancel={() => setAppreciateOpen(false)} footer={null} centered width={340}>

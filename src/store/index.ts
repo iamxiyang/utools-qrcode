@@ -43,6 +43,21 @@ const initialBatchConfig: BatchConfig = {
   fileNameTemplate: 'qrcode-{index}',
 }
 
+type SavedLogoMeta = {
+  id: string
+  name?: string
+}
+
+type UsageStats = {
+  totalUseCount: number
+  appreciateShown: boolean
+}
+
+const initialUsageStats: UsageStats = {
+  totalUseCount: 0,
+  appreciateShown: false,
+}
+
 type State = {
   // 当前模式
   mode: AppMode
@@ -59,12 +74,11 @@ type State = {
   // 历史记录展开状态
   historyExpanded: boolean
   // 已保存的 Logo 元数据列表（实际数据存在 attachment）
-  savedLogos: { id: string; name?: string }[]
+  savedLogos: SavedLogoMeta[]
   // 使用统计
-  usageStats: {
-    totalUseCount: number     // 总使用次数
-    appreciateShown: boolean  // 是否已显示赞赏引导
-  }
+  usageStats: UsageStats
+  // 本地持久化数据是否已完成加载
+  storageHydrated: boolean
   // 待解析图片（Base64）- 用于跨组件传递解析指令
   pendingParseImage: string | null
   // 待加载的历史文本 - 用于从历史记录加载到解析结果
@@ -73,21 +87,9 @@ type State = {
   pendingParseCamera: boolean
 }
 
-// --- 性能优化：预读取存储数据 ---
-const storedSetting = utools.dbStorage.getItem('setting') || {}
-const storedHistory = utools.dbStorage.getItem('history')
-const storedLogos = utools.dbStorage.getItem('savedLogos') || []
-const storedUsageStats = utools.dbStorage.getItem('usageStats') || {
-  totalUseCount: 0,
-  appreciateShown: false,
-}
-
 // 迁移旧数据逻辑
-const migrateOldHistory = (): History[] => {
-  if (storedHistory) return storedHistory
-
-  const oldHistory = utools.dbStorage.getItem('DecodeHistory') || []
-  if (oldHistory.length === 0) return []
+const migrateOldHistory = (oldHistory: unknown): History[] => {
+  if (!Array.isArray(oldHistory) || oldHistory.length === 0) return []
 
   // 迁移旧格式（仅在没有新历史且有旧历史时执行一次）
   return oldHistory.map((item: any, index: number) => {
@@ -108,23 +110,99 @@ const migrateOldHistory = (): History[] => {
   })
 }
 
+const readStoredHistory = (): History[] => {
+  const storedHistory = utools.dbStorage.getItem('history')
+  if (Array.isArray(storedHistory)) {
+    return storedHistory
+  }
+
+  return migrateOldHistory(utools.dbStorage.getItem('DecodeHistory'))
+}
+
+const mergeChangedFields = <T extends Record<string, any>>(initial: T, current: T, hydrated: Partial<T>) => {
+  const merged = {
+    ...initial,
+    ...hydrated,
+  } as T
+
+  for (const key of Object.keys(current) as Array<keyof T>) {
+    if (!Object.is(current[key], initial[key])) {
+      merged[key] = current[key]
+    }
+  }
+
+  return merged
+}
+
+const mergeUniqueById = <T extends { id: string }>(current: T[], hydrated: T[]) => {
+  const merged = [...current]
+  const seen = new Set(current.map(item => item.id))
+
+  for (const item of hydrated) {
+    if (seen.has(item.id)) continue
+    seen.add(item.id)
+    merged.push(item)
+  }
+
+  return merged
+}
+
 const state = proxy<State>({
   mode: 'parse',
-  setting: {
-    ...initialSetting,
-    ...storedSetting,
-  },
-  history: migrateOldHistory(),
+  setting: { ...initialSetting },
+  history: [],
   generateForm: { ...initialGenerateForm },
   batchConfig: { ...initialBatchConfig },
   batchItems: [],
   historyExpanded: false,
-  savedLogos: storedLogos,
-  usageStats: storedUsageStats,
+  savedLogos: [],
+  usageStats: { ...initialUsageStats },
+  storageHydrated: false,
   pendingParseImage: null,
   pendingParseText: null,
   pendingParseCamera: false,
 })
+
+let hydratePromise: Promise<void> | null = null
+
+export const hydratePersistedState = () => {
+  if (hydratePromise) return hydratePromise
+
+  hydratePromise = Promise.resolve().then(() => {
+    try {
+      const storedSetting = utools.dbStorage.getItem('setting') || {}
+      const storedLogos = utools.dbStorage.getItem('savedLogos')
+      const storedUsageStats = utools.dbStorage.getItem('usageStats') || initialUsageStats
+
+      Object.assign(
+        state.setting,
+        mergeChangedFields(initialSetting, snapshot(state.setting), storedSetting),
+      )
+
+      state.history = mergeUniqueById(state.history, readStoredHistory())
+      state.savedLogos = mergeUniqueById(
+        state.savedLogos,
+        Array.isArray(storedLogos) ? storedLogos : [],
+      )
+
+      Object.assign(state.usageStats, {
+        totalUseCount: Math.max(
+          storedUsageStats.totalUseCount || 0,
+          state.usageStats.totalUseCount,
+        ),
+        appreciateShown: Boolean(
+          storedUsageStats.appreciateShown || state.usageStats.appreciateShown,
+        ),
+      })
+    } catch (err) {
+      console.error('持久化数据加载失败:', err)
+    } finally {
+      state.storageHydrated = true
+    }
+  })
+
+  return hydratePromise
+}
 
 // --- 性能优化：防抖持久化 ---
 // 只对必须跨会话保存的 key 进行订阅
